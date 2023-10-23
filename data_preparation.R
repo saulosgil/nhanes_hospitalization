@@ -357,12 +357,12 @@ MEDCOND |> dplyr::distinct(SEQN, .keep_all = TRUE) # testing duplicade rows - "n
 KIDNEY <- dplyr::bind_rows(KIDNEY_15,
                            KIDNEY_17)
 
-KIDNEY |> dplyr::distinct(SEQN, .keep_all = TRUE) # testing duplicade rows - "none"
+KIDNEY |> dplyr::distinct(SEQN, .keep_all = TRUE) # testing duplicade rows - "YES"
 
 DIETD1 <- dplyr::bind_rows(DIETD1_15,
                            DIETD1_17)
 
-DIETD1 |> dplyr::distinct(SEQN, .keep_all = TRUE) # testing duplicade rows - "none"
+DIETD1 |> dplyr::distinct(SEQN, .keep_all = TRUE) # testing duplicade rows - "YES"
 
 DIETD2 <- dplyr::bind_rows(DIETD2_15,
                            DIETD2_17)
@@ -380,46 +380,70 @@ BLOODPRESS <- dplyr::bind_rows(BLOODPRESS_15,
 BLOODPRESS |> dplyr::distinct(SEQN, .keep_all = TRUE) # testing duplicade rows - "none"
 
 
-# Merge DEMO and DIET files
+# Merge HOSPITAL and DEMO files
 
-DEMO_DIET <-
-  dplyr::left_join(DEMO, DIET, by="SEQN")
+HOSPITAL_DEMO <-
+  dplyr::left_join(HOSPITAL, DEMO, by="SEQN")
 
-# Merge DEMO_DIET and BODY
+# Merge HOSPITAL_DEMO and PA
 
-DEMO_DIET_BODY <-
-  dplyr::left_join(DEMO_DIET, BODY, by="SEQN")
+HOSPITAL_DEMO_PA <-
+  dplyr::left_join(HOSPITAL_DEMO, PA, by="SEQN")
 
-# Merge DEMO_DIET_BODY and QUEST
+# Merge HOSPITAL_DEMO_PA and CVD
 
-DEMO_DIET_BODY_QUEST <-
-  dplyr::left_join(DEMO_DIET_BODY, QUEST, by="SEQN")
+HOSPITAL_DEMO_PA_CVD <-
+  dplyr::left_join(HOSPITAL_DEMO_PA, CVD, by="SEQN")
 
-# Merge DEMO_DIET_BODY_QUEST and ATV
+# Merge HOSPITAL_DEMO_PA_CVD and DM
 
-DEMO_DIET_BODY_QUEST_ATV <-
-  dplyr::left_join(DEMO_DIET_BODY_QUEST, ATV, by="SEQN")
+HOSPITAL_DEMO_PA_CVD_DM <-
+  dplyr::left_join(HOSPITAL_DEMO_PA_CVD, DM, by="SEQN")
 
-# Merge DEMO_DIET_BODY_QUEST_ATV and DM
+# Merge HOSPITAL_DEMO_PA_CVD_DM and DRUGS
 
-DEMO_DIET_BODY_QUEST_ATV_DM <-
-  dplyr::left_join(DEMO_DIET_BODY_QUEST_ATV, DM, by="SEQN")
+HOSPITAL_DEMO_PA_CVD_DM_DRUGS <-
+  dplyr::left_join(HOSPITAL_DEMO_PA_CVD_DM, DRUGS, by="SEQN")
 
-# Merge DEMO_DIET_BODY_QUEST_ATV_DM and HAS
+# Merge HOSPITAL_DEMO_PA_CVD_DM_DRUGS and SMOKING
 
-DEMO_DIET_BODY_QUEST_ATV_DM_HAS <-
-  dplyr::left_join(DEMO_DIET_BODY_QUEST_ATV_DM, HAS, by="SEQN")
+HOSPITAL_DEMO_PA_CVD_DM_DRUGS_SMOKING <-
+  dplyr::left_join(HOSPITAL_DEMO_PA_CVD_DM_DRUGS, SMOKING, by="SEQN")
 
-# Merge DEMO_DIET_BODY_QUEST_ATV_DM_HAS and CVD_CANCER
+# Merge HOSPITAL_DEMO_PA_CVD_DM_DRUGS_SMOKING and MEDCOND
 
-DEMO_DIET_BODY_QUEST_ATV_DM_HAS_CVD_CANCER <-
-  dplyr::left_join(DEMO_DIET_BODY_QUEST_ATV_DM_HAS, CVD_CANCER, by="SEQN")
+HOSPITAL_DEMO_PA_CVD_DM_DRUGS_SMOKING_MEDCOND <-
+  dplyr::left_join(HOSPITAL_DEMO_PA_CVD_DM_DRUGS_SMOKING, MEDCOND, by="SEQN")
 
+# Merge HOSPITAL_DEMO_PA_CVD_DM_DRUGS_SMOKING and KIDNEY
 
-df_bruto <- DEMO_DIET_BODY_QUEST_ATV_DM_HAS_CVD_CANCER
+HOSPITAL_DEMO_PA_CVD_DM_DRUGS_SMOKING_MEDCOND_KIDNEY <-
+  dplyr::left_join(HOSPITAL_DEMO_PA_CVD_DM_DRUGS_SMOKING_MEDCOND, KIDNEY, by="SEQN")
+
+# Merge HOSPITAL_DEMO_PA_CVD_DM_DRUGS_SMOKING_MEDCOND_KIDNEY and DIETD1
+
+HOSPITAL_DEMO_PA_CVD_DM_DRUGS_SMOKING_MEDCOND_KIDNEY_DIETD1 <-
+  dplyr::left_join(HOSPITAL_DEMO_PA_CVD_DM_DRUGS_SMOKING_MEDCOND_KIDNEY, DIETD1, by="SEQN")
+
+# Merge HOSPITAL_DEMO_PA_CVD_DM_DRUGS_SMOKING_MEDCOND_KIDNEY_DIETD1 and DIETD1
+
+HOSPITAL_DEMO_PA_CVD_DM_DRUGS_SMOKING_MEDCOND_KIDNEY_DIETD1_DIETD2 <-
+  dplyr::left_join(HOSPITAL_DEMO_PA_CVD_DM_DRUGS_SMOKING_MEDCOND_KIDNEY_DIETD1, DIETD2, by="SEQN")
+
+# Merge HOSPITAL_DEMO_PA_CVD_DM_DRUGS_SMOKING_MEDCOND_KIDNEY_DIETD1_DIETD2 and BODY
+
+HOSPITAL_DEMO_PA_CVD_DM_DRUGS_SMOKING_MEDCOND_KIDNEY_DIETD1_DIETD2_BODY <-
+  dplyr::left_join(HOSPITAL_DEMO_PA_CVD_DM_DRUGS_SMOKING_MEDCOND_KIDNEY_DIETD1_DIETD2, BODY, by="SEQN")
+
+# Merge HOSPITAL_DEMO_PA_CVD_DM_DRUGS_SMOKING_MEDCOND_KIDNEY_DIETD1_DIETD2_BODY and BLOODPRESS
+
+HOSPITAL_DEMO_PA_CVD_DM_DRUGS_SMOKING_MEDCOND_KIDNEY_DIETD1_DIETD2_BODY_BLOODPRESS <-
+  dplyr::left_join(HOSPITAL_DEMO_PA_CVD_DM_DRUGS_SMOKING_MEDCOND_KIDNEY_DIETD1_DIETD2_BODY, BLOODPRESS, by="SEQN")
+
+df_bruto <- HOSPITAL_DEMO_PA_CVD_DM_DRUGS_SMOKING_MEDCOND_KIDNEY_DIETD1_DIETD2_BODY_BLOODPRESS
 
 df <- df_bruto |>
-  dplyr::distinct(SEQN, .keep_all = TRUE) # testing duplicade rows - "YES" NEED TREATMENT!
+  dplyr::distinct(SEQN, .keep_all = TRUE) # testing duplicade rows - "NO"
 
 # Created new variables -----------------------------------------------------------------------
 
