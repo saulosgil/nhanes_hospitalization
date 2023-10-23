@@ -314,14 +314,70 @@ BLOODPRESS_17 <- foreign::read.xport(tf)[, c("SEQN",
 
 # Append Files ---------------------------------------------------------------------------------
 # Append Files
-DEMO <- dplyr::bind_rows(DEMO_99,
-                         DEMO_01,
-                         DEMO_03,
-                         DEMO_05)
+DEMO <- dplyr::bind_rows(DEMO_15,
+                         DEMO_17)
 
 DEMO |> dplyr::distinct(SEQN, .keep_all = TRUE) # testing duplicade rows - "none"
 
+HOSPITAL <- dplyr::bind_rows(HOSPITAL_15,
+                             HOSPITAL_17)
 
+HOSPITAL |> dplyr::distinct(SEQN, .keep_all = TRUE) # testing duplicade rows - "none"
+
+PA <- dplyr::bind_rows(PA_15,
+                       PA_17)
+
+PA |> dplyr::distinct(SEQN, .keep_all = TRUE) # testing duplicade rows - "none"
+
+CVD <- dplyr::bind_rows(CVD_15,
+                        CVD_17)
+
+CVD |> dplyr::distinct(SEQN, .keep_all = TRUE) # testing duplicade rows - "none"
+
+DM <- dplyr::bind_rows(DM_15,
+                       DM_17)
+
+DM |> dplyr::distinct(SEQN, .keep_all = TRUE) # testing duplicade rows - "none"
+
+DRUGS <- dplyr::bind_rows(DRUGS_15,
+                          DRUGS_17)
+
+DRUGS |> dplyr::distinct(SEQN, .keep_all = TRUE) # testing duplicade rows - "none"
+
+SMOKING <- dplyr::bind_rows(SMOKING_15,
+                            SMOKING_17)
+
+SMOKING |> dplyr::distinct(SEQN, .keep_all = TRUE) # testing duplicade rows - "none"
+
+MEDCOND <- dplyr::bind_rows(MEDCOND_15,
+                            MEDCOND_17)
+
+MEDCOND |> dplyr::distinct(SEQN, .keep_all = TRUE) # testing duplicade rows - "none"
+
+KIDNEY <- dplyr::bind_rows(KIDNEY_15,
+                           KIDNEY_17)
+
+KIDNEY |> dplyr::distinct(SEQN, .keep_all = TRUE) # testing duplicade rows - "none"
+
+DIETD1 <- dplyr::bind_rows(DIETD1_15,
+                           DIETD1_17)
+
+DIETD1 |> dplyr::distinct(SEQN, .keep_all = TRUE) # testing duplicade rows - "none"
+
+DIETD2 <- dplyr::bind_rows(DIETD2_15,
+                           DIETD2_17)
+
+DIETD2 |> dplyr::distinct(SEQN, .keep_all = TRUE) # testing duplicade rows - "none"
+
+BODY <- dplyr::bind_rows(BODY_15,
+                         BODY_17)
+
+BODY |> dplyr::distinct(SEQN, .keep_all = TRUE) # testing duplicade rows - "none"
+
+BLOODPRESS <- dplyr::bind_rows(BLOODPRESS_15,
+                               BLOODPRESS_17)
+
+BLOODPRESS |> dplyr::distinct(SEQN, .keep_all = TRUE) # testing duplicade rows - "none"
 
 
 # Merge DEMO and DIET files
