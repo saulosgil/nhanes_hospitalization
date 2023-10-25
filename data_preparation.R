@@ -213,70 +213,66 @@ KIDNEY_17 <- foreign::read.xport(tf)[, c("SEQN",
 
 # Dietary Interview Day1 -------------------------------------------------------------------------
 # 15-16
-download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2015-2016/DR1IFF_I.XPT", tf <- tempfile(), mode="wb")
+download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2015-2016/DR1TOT_I.XPT", tf <- tempfile(), mode="wb")
 DIETD1_15 <- foreign::read.xport(tf)[, c("SEQN",
                                          "WTDRD1",
-                                         "DR1IGRMS",
-                                         "DR1IKCAL",
-                                         "DR1IPROT",
-                                         "DR1ICARB",
-                                         "DR1ISUGR",
-                                         "DR1IFIBE",
-                                         "DR1ITFAT",
-                                         "DR1ISFAT",
-                                         "DR1IMFAT",
-                                         "DR1IPFAT",
-                                         "DR1ICHOL")]
+                                         "DR1TKCAL",
+                                         "DR1TPROT",
+                                         "DR1TCARB",
+                                         "DR1TSUGR",
+                                         "DR1TFIBE",
+                                         "DR1TTFAT",
+                                         "DR1TSFAT",
+                                         "DR1TMFAT",
+                                         "DR1TPFAT",
+                                         "DR1TCHOL")]
 
 # 17-18
-download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2017-2018/DR1IFF_J.XPT", tf <- tempfile(), mode="wb")
+download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2017-2018/DR1TOT_J.XPT", tf <- tempfile(), mode="wb")
 DIETD1_17 <- foreign::read.xport(tf)[, c("SEQN",
                                          "WTDRD1",
-                                         "DR1IGRMS",
-                                         "DR1IKCAL",
-                                         "DR1IPROT",
-                                         "DR1ICARB",
-                                         "DR1ISUGR",
-                                         "DR1IFIBE",
-                                         "DR1ITFAT",
-                                         "DR1ISFAT",
-                                         "DR1IMFAT",
-                                         "DR1IPFAT",
-                                         "DR1ICHOL")]
+                                         "DR1TKCAL",
+                                         "DR1TPROT",
+                                         "DR1TCARB",
+                                         "DR1TSUGR",
+                                         "DR1TFIBE",
+                                         "DR1TTFAT",
+                                         "DR1TSFAT",
+                                         "DR1TMFAT",
+                                         "DR1TPFAT",
+                                         "DR1TCHOL")]
 
 
 # Dietary Interview Day2 -------------------------------------------------------------------------
 # 15-16
-download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2015-2016/DR2IFF_I.XPT", tf <- tempfile(), mode="wb")
+download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2015-2016/DR2TOT_I.XPT", tf <- tempfile(), mode="wb")
 DIETD2_15 <- foreign::read.xport(tf)[, c("SEQN",
                                          "WTDR2D",
-                                         "DR2IGRMS",
-                                         "DR2IKCAL",
-                                         "DR2IPROT",
-                                         "DR2ICARB",
-                                         "DR2ISUGR",
-                                         "DR2IFIBE",
-                                         "DR2ITFAT",
-                                         "DR2ISFAT",
-                                         "DR2IMFAT",
-                                         "DR2IPFAT",
-                                         "DR2ICHOL")]
+                                         "DR2TKCAL",
+                                         "DR2TPROT",
+                                         "DR2TCARB",
+                                         "DR2TSUGR",
+                                         "DR2TFIBE",
+                                         "DR2TTFAT",
+                                         "DR2TSFAT",
+                                         "DR2TMFAT",
+                                         "DR2TPFAT",
+                                         "DR2TCHOL")]
 
 # 17-18
-download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2017-2018/DR2IFF_J.XPT", tf <- tempfile(), mode="wb")
+download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2017-2018/DR2TOT_J.XPT", tf <- tempfile(), mode="wb")
 DIETD2_17 <- foreign::read.xport(tf)[, c("SEQN",
                                          "WTDR2D",
-                                         "DR2IGRMS",
-                                         "DR2IKCAL",
-                                         "DR2IPROT",
-                                         "DR2ICARB",
-                                         "DR2ISUGR",
-                                         "DR2IFIBE",
-                                         "DR2ITFAT",
-                                         "DR2ISFAT",
-                                         "DR2IMFAT",
-                                         "DR2IPFAT",
-                                         "DR2ICHOL")]
+                                         "DR2TKCAL",
+                                         "DR2TPROT",
+                                         "DR2TCARB",
+                                         "DR2TSUGR",
+                                         "DR2TFIBE",
+                                         "DR2TTFAT",
+                                         "DR2TSFAT",
+                                         "DR2TMFAT",
+                                         "DR2TPFAT",
+                                         "DR2TCHOL")]
 
 # Body measurements -------------------------------------------------------------------------
 # 15-16
