@@ -439,7 +439,7 @@ HOSPITAL_DEMO_PA_CVD_DM_DRUGS_SMOKING_MEDCOND_KIDNEY_DIETD1_DIETD2_BODY_BLOODPRE
 df_bruto <- HOSPITAL_DEMO_PA_CVD_DM_DRUGS_SMOKING_MEDCOND_KIDNEY_DIETD1_DIETD2_BODY_BLOODPRESS
 
 df <- df_bruto |>
-  dplyr::distinct(SEQN, .keep_all = TRUE) # testing duplicade rows - "NO"
+  dplyr::distinct(SEQN, .keep_all = TRUE) # removing duplicate rows
 
 # Created new variables -----------------------------------------------------------------------
 
