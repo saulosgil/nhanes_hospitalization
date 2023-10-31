@@ -1,0 +1,100 @@
+---
+title: "Revisão das variáveis selecionadas"
+format: html
+editor: visual
+bibliography: references.bib
+---
+
+## Lendo a base
+
+```{r}
+df <- read.csv2(file = "df.csv")
+```
+
+Filtrando os dados para pegar apenas idosos (idade \>=60)
+
+```{r}
+df <- 
+  df |> 
+  dplyr::filter(RIDAGEYR >= 60)
+
+```
+
+## Step 1- Verificar se extrai as variáveis solicitadas
+
+Abaixo estão todas as variáveis extrai de acordo com o documento que você me enviou.
+
+Cheque se extrai todas.
+
+```{r}
+colnames(df)
+```
+
+Repare que extrai 5 variáveis a mais:
+
+\- SDDSRVYR: Data release cycle;
+
+\- WTINT2YR: Full sample 2 year MEC exam weight;
+
+\- WTMEC2YR: Full sample 2 year interview weight;
+
+\- SDMVPSU: Masked variance pseudo-PSU;
+
+\- SDMVSTRA: Masked variance pseudo-stratum.
+
+Essas variáveis são necessárias para fazer o *sample* *design*, procedimento de amostragem que é realizado para manter a amostra representativa da população americana.
+
+## Tamanho da amostra
+
+O tamanho da amostra esta em `r nrow(df)`. Lembrando que esse "n" consiste de sujeitos com idade igual ou superior a `r min(df$RIDAGEYR)` .
+
+# PONTO IMPORTANTE
+
+## Dados ausentes
+
+Primeiramente, observe a figura abaixo que apresenta os percentual de dados faltantes para cada variável.
+
+```{r}
+#| fig.height=10
+DataExplorer::plot_missing(df)
+```
+
+Repare nas colunas vermelha e lilás. Para essas varáveis, a quantidade de dados faltantes é elevada e, se forem fundamentais para o seu trabalho, não será possível realizar as analises devido ao pequeno tamanho amostral.
+
+Dê uma olhada na tabela abaixo (50 primeiras linhas) a quatidade de dado faltante (expresso como NA):
+
+```{r}
+knitr::kable(df[1:50,])
+```
+
+# O QUE PRECISA FAZER!?
+
+## Step 2- Renomear as variáveis
+
+Precisamos renomear as variáveis para que possamos trabalhar com elas com mais facilidade na fase de modelagem.
+
+Faça um documento em word seguindo o formato;
+
+(
+
+novo_nome = nome_antigo,
+
+...
+
+)
+
+*IMPORTANTE: Não use caracteres especiais, letras maiúsculas nem hífen. Tente usar um formato curto e se precisar use underline.*
+
+## Step 2 - Checar as variáveis 1 a 1
+
+Verifique porque a quantidade de dados faltantes. Em particular, para a variável que é desfecho do seu trabalho;
+
+\*Obs\* Para as variáveis de atividade física, eu imagino que as variáveis com grande número de dados faltantes não são determinantes para a quantificar o nível de atividade física. Mas veja certinho o que é cada uma delas.
+
+## Step 3 - Precisa criar alguma variável?
+
+Neste etapa é quando devemos criar alguma variável. Você pretende criar alguma?
+
+Por exemplo, se você pegou as variáveis peso e estatura, pode querer calcular o IMC.
+
+Precisa me indicar as variáveis que deseja que calcula e, claro, com o cálculo que devo utilizar.
