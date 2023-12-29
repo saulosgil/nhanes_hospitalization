@@ -74,21 +74,23 @@ One <-
     # create protein consumptoin status RDA
     PTN_RDA = case_when(PTNKG < 0.8 ~ "A_BAIXO",
                         PTNKG >=0.8 ~ "B_ADEQUADO"),
-    internação_ano = HUQ071,
+    internação_ano = case_when(HUQ071 == 1 ~ 1,
+                               HUQ071 == 2 ~ 0),
     internação_frequencia = HUD080,
     inAnalysis = (
       RIDAGEYR >= 65 &
-        internação_frequencia < 3 &
+        internação_ano < 3 &
         !is.na(PA_CLASS) &
         # ENERGY_STATUS == 'LIKELY' & # veriricar se iremos incluir consumo alimentar no projeto
         # !is.na(ENERGY_PT_MODEL) &
         DIQ010 < 3 & # Diabetes (1 = yes; 2 = no)
-        MCQ160E < 3 & # IAM (1 = yes; 2 = no)
-        MCQ160F < 3 & # IAM (1 = yes; 2 = no)
+        MCQ160F < 3 & # AVC (1 = yes; 2 = no)
         MCQ160B < 3 & # ICC (1 = yes; 2 = no)
-        MCQ160E < 3 & # heart attack (1 = yes; 2 = no)
+        MCQ160E < 3 & # IAM (1 = yes; 2 = no)
         MCQ220 < 3 & # cancer (1 = yes; 2 = no)
-        KIQ022 < 3 # renal (1 = yes; 2 = no)
+        KIQ022 < 3 & # renal (1 = yes; 2 = no)
+        MCQ160O < 3 & # DPOC (1 = yes; 2 = no)
+        MCQ160L < 3  # hepatico (1 = yes; 2 = no)
     )
   )
 
@@ -113,7 +115,7 @@ DataExplorer::plot_missing(NHANES$variables)
 knitr::kable(
   NHANES$variables |>
     count(PA_CLASS,
-          internação_frequencia)
+          as.factor(internação_ano))
   )
 
 # Creating two-way table from data frame
@@ -130,7 +132,7 @@ knitr::kable(
 ## crude logistic regression
 crude_svy <-
   survey::svyglm(
-    formula = as.factor(internação_frequencia) ~ as.factor(PA_CLASS),
+    formula = as.factor(internação_ano) ~ as.factor(PA_CLASS),
     design = NHANES,
     family = binomial(link = "logit")
   )
@@ -143,12 +145,13 @@ sjPlot::tab_model(crude_svy)
 ## Adjusted logistic regression
 adjusted_svy <-
   survey::svyglm(
-    formula = as.factor(internação_frequencia) ~ as.factor(PA_CLASS),
+    formula = as.factor(internação_ano) ~ as.factor(PA_CLASS) + as.factor(RIAGENDR)+ as.factor(RIDRETH1) + OBESITY,
     design = NHANES,
     family = binomial(link = "logit")
   )
-
+NHANES$variables$SMQ020
 # Summary
 summary(adjusted_svy)
 cbind(odds = exp(adjusted_svy$coefficients), exp(confint(adjusted_svy)))
 sjPlot::tab_model(adjusted_svy)
+
