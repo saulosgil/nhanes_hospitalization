@@ -71,6 +71,16 @@ One <-
                               RIAGENDR == 2 & ENERGY < 500 ~ "UNLIKELY",
                               RIAGENDR == 2 & ENERGY > 3500 ~ "UNLIKELY",
                               RIAGENDR == 2 & ENERGY >= 500 & ENERGY <=3500 ~ "LIKELY"),
+    # create AGE CLASS
+    AGE_CLASS = case_when(RIDAGEYR < 80 ~ "A_<80",
+                          RIDAGEYR >= 80 ~ "B_>=80"),
+    # create mutimorbidity
+    SUM_COMORB = DIQ010 + MCQ160F + MCQ160B + MCQ160E + MCQ220 + KIQ022 + MCQ160O + MCQ160L,
+    MULT_COMORB = case_when(RXDCOUNT < 2 ~ "A_NAO_MULT_COMORB",
+                            RXDCOUNT >= 2 ~ "B_MULT_COMORB"),
+    # create polypharmacy
+    POLYPHARM = case_when(RXDCOUNT < 3 ~ "A_NO_POLYPHARM",
+                          RXDCOUNT >= 3 ~ "B_POLYPHARM"),
     # create protein consumptoin status RDA
     PTN_RDA = case_when(PTNKG < 0.8 ~ "A_BAIXO",
                         PTNKG >=0.8 ~ "B_ADEQUADO"),
@@ -81,16 +91,20 @@ One <-
       RIDAGEYR >= 65 &
         internação_ano < 3 &
         !is.na(PA_CLASS) &
+        !is.na(AGE_CLASS) &
+        !is.na(RIDRETH1) &
+        !is.na(POLYPHARM) &
+        !is.na(MULT_COMORB) 
         # ENERGY_STATUS == 'LIKELY' & # veriricar se iremos incluir consumo alimentar no projeto
         # !is.na(ENERGY_PT_MODEL) &
-        DIQ010 < 3 & # Diabetes (1 = yes; 2 = no)
-        MCQ160F < 3 & # AVC (1 = yes; 2 = no)
-        MCQ160B < 3 & # ICC (1 = yes; 2 = no)
-        MCQ160E < 3 & # IAM (1 = yes; 2 = no)
-        MCQ220 < 3 & # cancer (1 = yes; 2 = no)
-        KIQ022 < 3 & # renal (1 = yes; 2 = no)
-        MCQ160O < 3 & # DPOC (1 = yes; 2 = no)
-        MCQ160L < 3  # hepatico (1 = yes; 2 = no)
+        # DIQ010 < 3 & # Diabetes (1 = yes; 2 = no)
+        # MCQ160F < 3 & # AVC (1 = yes; 2 = no)
+        # MCQ160B < 3 & # ICC (1 = yes; 2 = no)
+        # MCQ160E < 3 & # IAM (1 = yes; 2 = no)
+        # MCQ220 < 3 & # cancer (1 = yes; 2 = no)
+        # KIQ022 < 3 & # renal (1 = yes; 2 = no)
+        # MCQ160O < 3 & # DPOC (1 = yes; 2 = no)
+        # MCQ160L < 3  # hepatico (1 = yes; 2 = no)
     )
   )
 
@@ -102,7 +116,7 @@ NHANES_all <- svydesign(data=One, id=~SDMVPSU, strata=~SDMVSTRA, weights=~WTMEC2
 # Subsetting the original survey design object ensures we keep the design information about the number of clusters and strata
 NHANES <- subset(NHANES_all, inAnalysis)
 
-# to verify number of protein < 0.80
+# to verify number of Lines
 nrow(NHANES$variables)
 
 # Exploratory analysis ------------------------------------------------------------------------
@@ -123,7 +137,7 @@ knitr::kable(
   addmargins(
     table(
       "PA_CLASS" = NHANES$variables$PA_CLASS,
-      "internação" = NHANES$variables$internação_frequencia
+      "internação" = NHANES$variables$internação_ano
     )
   )
 )
@@ -143,13 +157,19 @@ cbind(odds = exp(crude_svy$coefficients), exp(confint(crude_svy)))
 sjPlot::tab_model(crude_svy)
 
 ## Adjusted logistic regression
+### Adjusts:
+# - age [<80 or ≥80 years], 
+# - race/ethnicity [Mexican American, other Hispanic, non-Hispanic white, non-Hispanic Black, and others],
+# - POLYPHARMACY [<3 AND >3],
+# - MULTIMORBIDITY [<3 AND >=5]
+
 adjusted_svy <-
   survey::svyglm(
-    formula = as.factor(internação_ano) ~ as.factor(PA_CLASS) + as.factor(RIAGENDR)+ as.factor(RIDRETH1) + OBESITY,
+    formula = as.factor(internação_ano) ~ as.factor(PA_CLASS) + as.factor(AGE_CLASS) + as.factor(RIDRETH1) + as.factor(POLYPHARM) + as.factor(MULT_COMORB),
     design = NHANES,
     family = binomial(link = "logit")
   )
-NHANES$variables$SMQ020
+
 # Summary
 summary(adjusted_svy)
 cbind(odds = exp(adjusted_svy$coefficients), exp(confint(adjusted_svy)))
