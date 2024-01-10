@@ -50,7 +50,10 @@ One <-
     PAL = PAQ655 * PAD660 + PAQ670 * PAD675,
     PATOTAL = PAW + PAT + PAL,
     PA_CLASS = case_when(PATOTAL >= 150 ~ "ATIVO",
-                         PATOTAL < 150 ~ "INATIVO")
+                         PATOTAL < 150 ~ "INATIVO"),
+    PA_3_CLASS = case_when(PATOTAL <= 75 ~ "C_até75",
+                           PATOTAL > 75 & PATOTAL <= 150 ~ "B_ate150",
+                           PATOTAL > 150 ~ "A_>150")
   ) |>
   # To create the variable INCAPAZ - PRIMARY OUTCOME
   mutate(
@@ -94,7 +97,7 @@ One <-
         !is.na(AGE_CLASS) &
         !is.na(RIDRETH1) &
         !is.na(POLYPHARM) &
-        !is.na(MULT_COMORB) 
+        !is.na(MULT_COMORB)
         # ENERGY_STATUS == 'LIKELY' & # veriricar se iremos incluir consumo alimentar no projeto
         # !is.na(ENERGY_PT_MODEL) &
         # DIQ010 < 3 & # Diabetes (1 = yes; 2 = no)
@@ -142,7 +145,7 @@ knitr::kable(
   )
 )
 
-# analysis ------------------------------------------------------------------------------------
+# Analysis - PA com 2 classes ------------------------------------------------------------------------------------
 ## crude logistic regression
 crude_svy <-
   survey::svyglm(
@@ -158,7 +161,7 @@ sjPlot::tab_model(crude_svy)
 
 ## Adjusted logistic regression
 ### Adjusts:
-# - age [<80 or ≥80 years], 
+# - age [<80 or ≥80 years],
 # - race/ethnicity [Mexican American, other Hispanic, non-Hispanic white, non-Hispanic Black, and others],
 # - POLYPHARMACY [<3 AND >3],
 # - MULTIMORBIDITY [<3 AND >=5]
@@ -174,4 +177,35 @@ adjusted_svy <-
 summary(adjusted_svy)
 cbind(odds = exp(adjusted_svy$coefficients), exp(confint(adjusted_svy)))
 sjPlot::tab_model(adjusted_svy)
+# Analysis - PA com 3 classes ------------------------------------------------------------------------------------
+## crude logistic regression
+crude_svy <-
+  survey::svyglm(
+    formula = as.factor(internação_ano) ~ as.factor(PA_3_CLASS),
+    design = NHANES,
+    family = binomial(link = "logit")
+  )
 
+# Summary
+summary(crude_svy)
+cbind(odds = exp(crude_svy$coefficients), exp(confint(crude_svy)))
+sjPlot::tab_model(crude_svy)
+
+## Adjusted logistic regression
+### Adjusts:
+# - age [<80 or ≥80 years],
+# - race/ethnicity [Mexican American, other Hispanic, non-Hispanic white, non-Hispanic Black, and others],
+# - POLYPHARMACY [<3 AND >3],
+# - MULTIMORBIDITY [<3 AND >=5]
+
+adjusted_svy <-
+  survey::svyglm(
+    formula = as.factor(internação_ano) ~ as.factor(PA_3_CLASS) + as.factor(AGE_CLASS) + as.factor(RIDRETH1) + as.factor(POLYPHARM) + as.factor(MULT_COMORB),
+    design = NHANES,
+    family = binomial(link = "logit")
+  )
+
+# Summary
+summary(adjusted_svy)
+cbind(odds = exp(adjusted_svy$coefficients), exp(confint(adjusted_svy)))
+sjPlot::tab_model(adjusted_svy)
