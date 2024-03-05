@@ -530,7 +530,17 @@ One <-
         !is.na(AGE_CLASS) &
         !is.na(RIDRETH1) &
         !is.na(POLYPHARM) &
-        !is.na(MULT_COMORB) 
+        !is.na(MULT_COMORB)&
+        PAQ610 < 8 &
+        PAD615 < 841 &
+        PAQ625 < 8 &
+        PAD630 < 841 &
+        PAQ640 < 8 &
+        PAD645 < 661 &
+        PAQ655 < 7 &
+        PAD660 < 481 &
+        PAQ670 < 8 &
+        PAD675 < 540
         # ENERGY_STATUS == 'LIKELY' & # veriricar se iremos incluir consumo alimentar no projeto
         # !is.na(ENERGY_PT_MODEL) &
         # DIQ010 < 3 & # Diabetes (1 = yes; 2 = no)

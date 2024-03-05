@@ -97,7 +97,17 @@ One <-
         !is.na(AGE_CLASS) &
         !is.na(RIDRETH1) &
         !is.na(POLYPHARM) &
-        !is.na(MULT_COMORB)
+        !is.na(MULT_COMORB)&
+        PAQ610 < 8 &
+        PAD615 < 841 &
+        PAQ625 < 8 &
+        PAD630 < 841 &
+        PAQ640 < 8 &
+        PAD645 < 661 &
+        PAQ655 < 7 &
+        PAD660 < 481 &
+        PAQ670 < 8 &
+        PAD675 < 540
         # ENERGY_STATUS == 'LIKELY' & # veriricar se iremos incluir consumo alimentar no projeto
         # !is.na(ENERGY_PT_MODEL) &
         # DIQ010 < 3 & # Diabetes (1 = yes; 2 = no)
@@ -119,8 +129,9 @@ NHANES_all <- svydesign(data=One, id=~SDMVPSU, strata=~SDMVSTRA, weights=~WTMEC2
 # Subsetting the original survey design object ensures we keep the design information about the number of clusters and strata
 NHANES <- subset(NHANES_all, inAnalysis)
 
-# to verify number of Lines
+# to verify number of Lines and Cols
 nrow(NHANES$variables)
+ncol(NHANES$variables)
 
 # Exploratory analysis ------------------------------------------------------------------------
 # General Descriptive and distribution analysis
@@ -128,7 +139,13 @@ glimpse(NHANES$variables)
 skimr::skim_without_charts(NHANES$variables)
 DataExplorer::plot_missing(NHANES$variables)
 
-# Count
+# Count inactive vs actives
+knitr::kable(
+  NHANES$variables |>
+    count(PA_CLASS)
+  )
+
+# Count hospital admission in active and inactive
 knitr::kable(
   NHANES$variables |>
     count(PA_CLASS,
@@ -177,6 +194,7 @@ adjusted_svy <-
 summary(adjusted_svy)
 cbind(odds = exp(adjusted_svy$coefficients), exp(confint(adjusted_svy)))
 sjPlot::tab_model(adjusted_svy)
+
 # Analysis - PA com 3 classes ------------------------------------------------------------------------------------
 ## crude logistic regression
 crude_svy <-
@@ -209,3 +227,4 @@ adjusted_svy <-
 summary(adjusted_svy)
 cbind(odds = exp(adjusted_svy$coefficients), exp(confint(adjusted_svy)))
 sjPlot::tab_model(adjusted_svy)
+
