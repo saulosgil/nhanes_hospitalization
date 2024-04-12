@@ -1,9 +1,19 @@
+#' Example R code to replicate NCHS Data Brief No.303, Figures 1
+#' Prevalence of Depression Among Adults Aged 20 and Over: United States, 2013-2016
+
+#' Brody DJ, Pratt LA, Hughes JP. Prevalence of Depression Among Adults Aged 20 and Over: United
+#' States, 2013-2016. NCHS Data Brief. No 303. Hyattsville, MD: National Center for Health Statistics. 2018.
+
+#' Available at: https://www.cdc.gov/nchs/products/databriefs/db303.htm
+
+# Project - Association between PA and hospitalization ----------------------------------------
+
+#' ------------------------------------------------------------------------------------------------------------
+
 # Load survey and dplyr packages
 #+ message = FALSE, warning=FALSE
 library(tidyverse)
 library(survey)
-library(sjPlot)
-
 #'
 options(survey.lonely.psu='adjust')
 
@@ -13,7 +23,464 @@ for (p in c("base", "survey","dplyr")) {
   cat(p, ": ", as.character(packageVersion(p)), "\n")
 }
 
-# load dataset
+#' # Data preparation
+# Download & Read Transport Files
+
+# Demographic ---------------------------------------------------------------------------------
+# 15-16
+download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2015-2016/DEMO_I.XPT", tf <- tempfile(), mode="wb")
+DEMO_15 <- foreign::read.xport(tf)[, c("SEQN",
+                                       "SDDSRVYR",
+                                       "RIAGENDR",
+                                       "RIDAGEYR",
+                                       "RIDRETH1",
+                                       "DMDEDUC2",
+                                       "DMDMARTL",
+                                       "INDFMIN2",
+                                       "INDFMPIR",
+                                       "WTINT2YR",
+                                       "WTMEC2YR",
+                                       "SDMVSTRA",
+                                       "SDMVPSU")]
+
+# 17-18
+download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2017-2018/DEMO_J.XPT", tf <- tempfile(), mode="wb")
+DEMO_17 <- foreign::read.xport(tf)[, c("SEQN",
+                                       "SDDSRVYR",
+                                       "RIAGENDR",
+                                       "RIDAGEYR",
+                                       "RIDRETH1",
+                                       "DMDEDUC2",
+                                       "DMDMARTL",
+                                       "INDFMIN2",
+                                       "INDFMPIR",
+                                       "WTINT2YR",
+                                       "WTMEC2YR",
+                                       "SDMVSTRA",
+                                       "SDMVPSU")]
+
+# Hospital Utilization and access to care-------------------------------------------------------
+# 15-16
+download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2015-2016/HUQ_I.XPT", tf <- tempfile(), mode="wb")
+HOSPITAL_15 <- foreign::read.xport(tf)[, c("SEQN",
+                                           "HUQ010",
+                                           "HUQ071",
+                                           "HUD080",
+                                           "HUQ051")]
+
+
+# 17-18
+download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2017-2018/HUQ_J.XPT", tf <- tempfile(), mode="wb")
+HOSPITAL_17 <- foreign::read.xport(tf)[, c("SEQN",
+                                           "HUQ010",
+                                           "HUQ071",
+                                           "HUD080",
+                                           "HUQ051")]
+
+# Physical function ---------------------------------------------------------------------------
+# 15-16
+download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2015-2016/PFQ_I.XPT", tf <- tempfile(), mode="wb")
+PHYSICAL_FUCTION_15 <- foreign::read.xport(tf)[, c("SEQN",
+                                                   "PFQ061H",
+                                                   "PFQ061I",
+                                                   "PFQ061K",
+                                                   "PFQ061L")]
+
+
+# 17-18
+download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2017-2018/PFQ_J.XPT", tf <- tempfile(), mode="wb")
+PHYSICAL_FUCTION_17 <- foreign::read.xport(tf)[, c("SEQN",
+                                                   "PFQ061H",
+                                                   "PFQ061I",
+                                                   "PFQ061K",
+                                                   "PFQ061L")]
+
+# Physical activity ----------------------------------------------------------------------------
+# 15-16
+download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2015-2016/PAQ_I.XPT", tf <- tempfile(), mode="wb")
+PA_15 <- foreign::read.xport(tf)[, c("SEQN",
+                                     "PAQ605",
+                                     "PAQ610",
+                                     "PAD615",
+                                     "PAQ620",
+                                     "PAQ625",
+                                     "PAD630",
+                                     "PAQ635",
+                                     "PAQ640",
+                                     "PAD645",
+                                     "PAQ650",
+                                     "PAQ655",
+                                     "PAD660",
+                                     "PAQ665",
+                                     "PAQ670",
+                                     "PAD675",
+                                     "PAD680")]
+
+# 17-18
+download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2017-2018/PAQ_J.XPT", tf <- tempfile(), mode="wb")
+PA_17 <- foreign::read.xport(tf)[, c("SEQN",
+                                     "PAQ605",
+                                     "PAQ610",
+                                     "PAD615",
+                                     "PAQ620",
+                                     "PAQ625",
+                                     "PAD630",
+                                     "PAQ635",
+                                     "PAQ640",
+                                     "PAD645",
+                                     "PAQ650",
+                                     "PAQ655",
+                                     "PAD660",
+                                     "PAQ665",
+                                     "PAQ670",
+                                     "PAD675",
+                                     "PAD680")]
+
+# cardiovascular health -------------------------------------------------------------------------
+# 15-16
+download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2015-2016/CDQ_I.XPT", tf <- tempfile(), mode="wb")
+CVD_15 <- foreign::read.xport(tf)[, c("SEQN",
+                                      "CDQ010",
+                                      "CDQ001")]
+
+# 17-18
+download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2017-2018/CDQ_J.XPT", tf <- tempfile(), mode="wb")
+CVD_17 <- foreign::read.xport(tf)[, c("SEQN",
+                                      "CDQ010",
+                                      "CDQ001")]
+
+# Diabetes -------------------------------------------------------------------------
+# 15-16
+download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2015-2016/DIQ_I.XPT", tf <- tempfile(), mode="wb")
+DM_15 <- foreign::read.xport(tf)[, c("SEQN",
+                                     "DIQ010",
+                                     "DIQ050")]
+
+# 17-18
+download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2017-2018/DIQ_J.XPT", tf <- tempfile(), mode="wb")
+DM_17 <- foreign::read.xport(tf)[, c("SEQN",
+                                     "DIQ010",
+                                     "DIQ050")]
+
+# Prescription Medications --------------------------------------------------------------------
+# 15-16
+download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2015-2016/RXQ_RX_I.XPT", tf <- tempfile(), mode="wb")
+DRUGS_15 <- foreign::read.xport(tf)[, c("SEQN",
+                                        "RXDUSE",
+                                        "RXDCOUNT")]
+
+# 17-18
+download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2017-2018/RXQ_RX_J.XPT", tf <- tempfile(), mode="wb")
+DRUGS_17 <- foreign::read.xport(tf)[, c("SEQN",
+                                        "RXDUSE",
+                                        "RXDCOUNT")]
+
+# Smoking - Cigarret use ---------------------------------------------------------------------
+# 15-16
+download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2015-2016/SMQ_I.XPT", tf <- tempfile(), mode="wb")
+SMOKING_15 <- foreign::read.xport(tf)[, c("SEQN",
+                                          "SMQ020",
+                                          "SMD030",
+                                          "SMQ040",
+                                          "SMQ050Q",
+                                          "SMD641",
+                                          "SMD650")]
+
+# 17-18
+download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2017-2018/SMQ_J.XPT", tf <- tempfile(), mode="wb")
+SMOKING_17 <- foreign::read.xport(tf)[, c("SEQN",
+                                          "SMQ020",
+                                          "SMD030",
+                                          "SMQ040",
+                                          "SMQ050Q",
+                                          "SMD641",
+                                          "SMD650")]
+
+# Medical Conditions -------------------------------------------------------------------------
+# 15-16
+download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2015-2016/MCQ_I.XPT", tf <- tempfile(), mode="wb")
+MEDCOND_15 <- foreign::read.xport(tf)[, c("SEQN",
+                                          "MCQ160B",
+                                          "MCQ160C",
+                                          "MCQ160D",
+                                          "MCQ160E",
+                                          "MCQ160F",
+                                          "MCQ160O",
+                                          "MCQ080",
+                                          "MCQ160L",
+                                          "MCQ220")]
+
+# 17-18
+download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2017-2018/MCQ_J.XPT", tf <- tempfile(), mode="wb")
+MEDCOND_17 <- foreign::read.xport(tf)[, c("SEQN",
+                                          "MCQ160B",
+                                          "MCQ160C",
+                                          "MCQ160D",
+                                          "MCQ160E",
+                                          "MCQ160F",
+                                          "MCQ160O",
+                                          "MCQ080",
+                                          "MCQ160L",
+                                          "MCQ220")]
+# Kidney Conditions  -------------------------------------------------------------------------
+# 15-16
+download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2015-2016/KIQ_U_I.XPT", tf <- tempfile(), mode="wb")
+KIDNEY_15 <- foreign::read.xport(tf)[, c("SEQN",
+                                         "KIQ022")]
+
+# 17-18
+download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2017-2018/KIQ_U_J.XPT", tf <- tempfile(), mode="wb")
+KIDNEY_17 <- foreign::read.xport(tf)[, c("SEQN",
+                                         "KIQ022")]
+
+
+# Dietary Interview Day1 -------------------------------------------------------------------------
+# 15-16
+download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2015-2016/DR1TOT_I.XPT", tf <- tempfile(), mode="wb")
+DIETD1_15 <- foreign::read.xport(tf)[, c("SEQN",
+                                         "WTDRD1",
+                                         "DR1TKCAL",
+                                         "DR1TPROT",
+                                         "DR1TCARB",
+                                         "DR1TSUGR",
+                                         "DR1TFIBE",
+                                         "DR1TTFAT",
+                                         "DR1TSFAT",
+                                         "DR1TMFAT",
+                                         "DR1TPFAT",
+                                         "DR1TCHOL")]
+
+# 17-18
+download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2017-2018/DR1TOT_J.XPT", tf <- tempfile(), mode="wb")
+DIETD1_17 <- foreign::read.xport(tf)[, c("SEQN",
+                                         "WTDRD1",
+                                         "DR1TKCAL",
+                                         "DR1TPROT",
+                                         "DR1TCARB",
+                                         "DR1TSUGR",
+                                         "DR1TFIBE",
+                                         "DR1TTFAT",
+                                         "DR1TSFAT",
+                                         "DR1TMFAT",
+                                         "DR1TPFAT",
+                                         "DR1TCHOL")]
+
+
+# Dietary Interview Day2 -------------------------------------------------------------------------
+# 15-16
+download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2015-2016/DR2TOT_I.XPT", tf <- tempfile(), mode="wb")
+DIETD2_15 <- foreign::read.xport(tf)[, c("SEQN",
+                                         "WTDR2D",
+                                         "DR2TKCAL",
+                                         "DR2TPROT",
+                                         "DR2TCARB",
+                                         "DR2TSUGR",
+                                         "DR2TFIBE",
+                                         "DR2TTFAT",
+                                         "DR2TSFAT",
+                                         "DR2TMFAT",
+                                         "DR2TPFAT",
+                                         "DR2TCHOL")]
+
+# 17-18
+download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2017-2018/DR2TOT_J.XPT", tf <- tempfile(), mode="wb")
+DIETD2_17 <- foreign::read.xport(tf)[, c("SEQN",
+                                         "WTDR2D",
+                                         "DR2TKCAL",
+                                         "DR2TPROT",
+                                         "DR2TCARB",
+                                         "DR2TSUGR",
+                                         "DR2TFIBE",
+                                         "DR2TTFAT",
+                                         "DR2TSFAT",
+                                         "DR2TMFAT",
+                                         "DR2TPFAT",
+                                         "DR2TCHOL")]
+
+# Body measurements -------------------------------------------------------------------------
+# 15-16
+download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2015-2016/BMX_I.XPT", tf <- tempfile(), mode="wb")
+BODY_15 <- foreign::read.xport(tf)[, c("SEQN",
+                                       "BMXWT",
+                                       "BMXHT")]
+
+# 17-18
+download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2017-2018/BMX_J.XPT", tf <- tempfile(), mode="wb")
+BODY_17 <- foreign::read.xport(tf)[, c("SEQN",
+                                       "BMXWT",
+                                       "BMXHT")]
+
+# Blood Pressure  -------------------------------------------------------------------------
+# 15-16
+download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2015-2016/BPX_I.XPT", tf <- tempfile(), mode="wb")
+BLOODPRESS_15 <- foreign::read.xport(tf)[, c("SEQN",
+                                             "BPXSY1",
+                                             "BPXDI1",
+                                             "BPXSY2",
+                                             "BPXDI2",
+                                             "BPXSY3",
+                                             "BPXDI3")]
+
+# 17-18
+download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2017-2018/BPX_J.XPT", tf <- tempfile(), mode="wb")
+BLOODPRESS_17 <- foreign::read.xport(tf)[, c("SEQN",
+                                             "BPXSY1",
+                                             "BPXDI1",
+                                             "BPXSY2",
+                                             "BPXDI2",
+                                             "BPXSY3",
+                                             "BPXDI3")]
+
+# Append Files ---------------------------------------------------------------------------------
+# Append Files
+DEMO <- dplyr::bind_rows(DEMO_15,
+                         DEMO_17)
+
+DEMO |> dplyr::distinct(SEQN, .keep_all = TRUE) # testing duplicade rows - "none"
+
+HOSPITAL <- dplyr::bind_rows(HOSPITAL_15,
+                             HOSPITAL_17)
+
+HOSPITAL |> dplyr::distinct(SEQN, .keep_all = TRUE) # testing duplicade rows - "none"
+
+PA <- dplyr::bind_rows(PA_15,
+                       PA_17)
+
+PA |> dplyr::distinct(SEQN, .keep_all = TRUE) # testing duplicade rows - "none"
+
+CVD <- dplyr::bind_rows(CVD_15,
+                        CVD_17)
+
+CVD |> dplyr::distinct(SEQN, .keep_all = TRUE) # testing duplicade rows - "none"
+
+DM <- dplyr::bind_rows(DM_15,
+                       DM_17)
+
+DM |> dplyr::distinct(SEQN, .keep_all = TRUE) # testing duplicade rows - "none"
+
+DRUGS <- dplyr::bind_rows(DRUGS_15,
+                          DRUGS_17)
+
+DRUGS |> dplyr::distinct(SEQN, .keep_all = TRUE) # testing duplicade rows - "none"
+
+SMOKING <- dplyr::bind_rows(SMOKING_15,
+                            SMOKING_17)
+
+SMOKING |> dplyr::distinct(SEQN, .keep_all = TRUE) # testing duplicade rows - "none"
+
+MEDCOND <- dplyr::bind_rows(MEDCOND_15,
+                            MEDCOND_17)
+
+MEDCOND |> dplyr::distinct(SEQN, .keep_all = TRUE) # testing duplicade rows - "none"
+
+KIDNEY <- dplyr::bind_rows(KIDNEY_15,
+                           KIDNEY_17)
+
+KIDNEY |> dplyr::distinct(SEQN, .keep_all = TRUE) # testing duplicade rows - "YES"
+
+DIETD1 <- dplyr::bind_rows(DIETD1_15,
+                           DIETD1_17)
+
+DIETD1 |> dplyr::distinct(SEQN, .keep_all = TRUE) # testing duplicade rows - "YES"
+
+DIETD2 <- dplyr::bind_rows(DIETD2_15,
+                           DIETD2_17)
+
+DIETD2 |> dplyr::distinct(SEQN, .keep_all = TRUE) # testing duplicade rows - "none"
+
+BODY <- dplyr::bind_rows(BODY_15,
+                         BODY_17)
+
+BODY |> dplyr::distinct(SEQN, .keep_all = TRUE) # testing duplicade rows - "none"
+
+BLOODPRESS <- dplyr::bind_rows(BLOODPRESS_15,
+                               BLOODPRESS_17)
+
+BLOODPRESS |> dplyr::distinct(SEQN, .keep_all = TRUE) # testing duplicade rows - "none"
+
+PHYSICAL_FUCTION <- dplyr::bind_rows(PHYSICAL_FUCTION_15,
+                                     PHYSICAL_FUCTION_17)
+
+PHYSICAL_FUCTION |> dplyr::distinct(SEQN, .keep_all = TRUE) # testing duplicade rows - "none"
+
+# Merge HOSPITAL and DEMO files
+
+HOSPITAL_DEMO <-
+  dplyr::left_join(HOSPITAL, DEMO, by="SEQN")
+
+# Merge HOSPITAL_DEMO and PA
+
+HOSPITAL_DEMO_PA <-
+  dplyr::left_join(HOSPITAL_DEMO, PA, by="SEQN")
+
+# Merge HOSPITAL_DEMO_PA and CVD
+
+HOSPITAL_DEMO_PA_CVD <-
+  dplyr::left_join(HOSPITAL_DEMO_PA, CVD, by="SEQN")
+
+# Merge HOSPITAL_DEMO_PA_CVD and DM
+
+HOSPITAL_DEMO_PA_CVD_DM <-
+  dplyr::left_join(HOSPITAL_DEMO_PA_CVD, DM, by="SEQN")
+
+# Merge HOSPITAL_DEMO_PA_CVD_DM and DRUGS
+
+HOSPITAL_DEMO_PA_CVD_DM_DRUGS <-
+  dplyr::left_join(HOSPITAL_DEMO_PA_CVD_DM, DRUGS, by="SEQN")
+
+# Merge HOSPITAL_DEMO_PA_CVD_DM_DRUGS and SMOKING
+
+HOSPITAL_DEMO_PA_CVD_DM_DRUGS_SMOKING <-
+  dplyr::left_join(HOSPITAL_DEMO_PA_CVD_DM_DRUGS, SMOKING, by="SEQN")
+
+# Merge HOSPITAL_DEMO_PA_CVD_DM_DRUGS_SMOKING and MEDCOND
+
+HOSPITAL_DEMO_PA_CVD_DM_DRUGS_SMOKING_MEDCOND <-
+  dplyr::left_join(HOSPITAL_DEMO_PA_CVD_DM_DRUGS_SMOKING, MEDCOND, by="SEQN")
+
+# Merge HOSPITAL_DEMO_PA_CVD_DM_DRUGS_SMOKING and KIDNEY
+
+HOSPITAL_DEMO_PA_CVD_DM_DRUGS_SMOKING_MEDCOND_KIDNEY <-
+  dplyr::left_join(HOSPITAL_DEMO_PA_CVD_DM_DRUGS_SMOKING_MEDCOND, KIDNEY, by="SEQN")
+
+# Merge HOSPITAL_DEMO_PA_CVD_DM_DRUGS_SMOKING_MEDCOND_KIDNEY and DIETD1
+
+HOSPITAL_DEMO_PA_CVD_DM_DRUGS_SMOKING_MEDCOND_KIDNEY_DIETD1 <-
+  dplyr::left_join(HOSPITAL_DEMO_PA_CVD_DM_DRUGS_SMOKING_MEDCOND_KIDNEY, DIETD1, by="SEQN")
+
+# Merge HOSPITAL_DEMO_PA_CVD_DM_DRUGS_SMOKING_MEDCOND_KIDNEY_DIETD1 and DIETD1
+
+HOSPITAL_DEMO_PA_CVD_DM_DRUGS_SMOKING_MEDCOND_KIDNEY_DIETD1_DIETD2 <-
+  dplyr::left_join(HOSPITAL_DEMO_PA_CVD_DM_DRUGS_SMOKING_MEDCOND_KIDNEY_DIETD1, DIETD2, by="SEQN")
+
+# Merge HOSPITAL_DEMO_PA_CVD_DM_DRUGS_SMOKING_MEDCOND_KIDNEY_DIETD1_DIETD2 and BODY
+
+HOSPITAL_DEMO_PA_CVD_DM_DRUGS_SMOKING_MEDCOND_KIDNEY_DIETD1_DIETD2_BODY <-
+  dplyr::left_join(HOSPITAL_DEMO_PA_CVD_DM_DRUGS_SMOKING_MEDCOND_KIDNEY_DIETD1_DIETD2, BODY, by="SEQN")
+
+# Merge HOSPITAL_DEMO_PA_CVD_DM_DRUGS_SMOKING_MEDCOND_KIDNEY_DIETD1_DIETD2_BODY and BLOODPRESS
+
+HOSPITAL_DEMO_PA_CVD_DM_DRUGS_SMOKING_MEDCOND_KIDNEY_DIETD1_DIETD2_BODY_BLOODPRESS <-
+  dplyr::left_join(HOSPITAL_DEMO_PA_CVD_DM_DRUGS_SMOKING_MEDCOND_KIDNEY_DIETD1_DIETD2_BODY, BLOODPRESS, by="SEQN")
+
+# Merge HOSPITAL_DEMO_PA_CVD_DM_DRUGS_SMOKING_MEDCOND_KIDNEY_DIETD1_DIETD2_BODY_BLOODPRESS and PHYSICAL FUNCTION
+
+HOSPITAL_DEMO_PA_CVD_DM_DRUGS_SMOKING_MEDCOND_KIDNEY_DIETD1_DIETD2_BODY_BLOODPRESS_PHYSICAL_FUNCTION <-
+  dplyr::left_join(HOSPITAL_DEMO_PA_CVD_DM_DRUGS_SMOKING_MEDCOND_KIDNEY_DIETD1_DIETD2_BODY_BLOODPRESS, PHYSICAL_FUCTION, by="SEQN")
+
+df_bruto <- HOSPITAL_DEMO_PA_CVD_DM_DRUGS_SMOKING_MEDCOND_KIDNEY_DIETD1_DIETD2_BODY_BLOODPRESS_PHYSICAL_FUNCTION
+
+df <- df_bruto |>
+  dplyr::distinct(SEQN, .keep_all = TRUE) # removing duplicate rows
+
+# Created new variables -----------------------------------------------------------------------
+
+###### salvando data.frame para explorar
+
+# readr::write_csv2(x = df, file = "df.csv") # deixar comentado para salvar
+
+# reading dataset --------------------------------------------------------------------------------
+
 df <- read.csv2(file = "df.csv")
 
 # DataPrep ------------------------------------------------------------------------------------
@@ -50,11 +517,25 @@ One <-
     PAL = PAQ655 * PAD660 + PAQ670 * PAD675,
     PATOTAL = PAW + PAT + PAL,
     PA_CLASS = case_when(PATOTAL >= 150 ~ "ATIVO",
-                         PATOTAL < 150 ~ "INATIVO"),
-    PA_3_CLASS = case_when(PATOTAL <= 75 ~ "C_até75",
-                           PATOTAL > 75 & PATOTAL <= 150 ~ "B_ate150",
-                           PATOTAL > 150 ~ "A_>150")
+                         PATOTAL < 150 ~ "INATIVO")
   ) |>
+  # adjusting physical functioning (disability) parameters
+  dplyr::mutate(WALKING_ROOMS = PFQ061H) |>
+  dplyr::mutate(STANDINGUP = PFQ061I) |>
+  dplyr::mutate(EATING = PFQ061K) |>
+  dplyr::mutate(DRESSING = PFQ061L) |>
+  # To create the variable INCAPAZ - PRIMARY OUTCOME
+  mutate(WALKING_ROOMS_NOVO = case_when(WALKING_ROOMS == 1 ~ 0,
+                                        WALKING_ROOMS >=2 & WALKING_ROOMS <=4 ~ 1),
+         STANDINGUP_NOVO = case_when(STANDINGUP == 1 ~ 0,
+                                     STANDINGUP >=2 & WALKING_ROOMS <=4 ~ 1),
+         EATING_NOVO = case_when(EATING == 1 ~ 0,
+                                 EATING >=2 & EATING <=4 ~ 1),
+         DRESSING_NOVO = case_when(DRESSING == 1 ~ 0,
+                                   DRESSING >=2 & WALKING_ROOMS <=4 ~ 1),
+         INCAPAZ = WALKING_ROOMS_NOVO + STANDINGUP_NOVO + EATING_NOVO + DRESSING_NOVO,
+         INCAPAZ_CLASSE = case_when(INCAPAZ < 1 ~ 0, # no disability
+                                    INCAPAZ >= 1 & INCAPAZ <= 16 ~ 1)) |>
   # To create the variable INCAPAZ - PRIMARY OUTCOME
   mutate(
     BMXHT = BMXHT /100,
@@ -93,31 +574,31 @@ One <-
     inAnalysis = (
       RIDAGEYR >= 65 &
         internação_ano < 3 &
-        !is.na(PA_CLASS) &
+        !is.na(INCAPAZ_CLASSE) &
         !is.na(AGE_CLASS) &
         !is.na(RIDRETH1) &
         !is.na(POLYPHARM) &
-        !is.na(MULT_COMORB)&
-        PAQ610 < 8 &
-        PAD615 < 841 &
-        PAQ625 < 8 &
-        PAD630 < 841 &
-        PAQ640 < 8 &
-        PAD645 < 661 &
-        PAQ655 < 7 &
-        PAD660 < 481 &
-        PAQ670 < 8 &
-        PAD675 < 540
-        # ENERGY_STATUS == 'LIKELY' & # veriricar se iremos incluir consumo alimentar no projeto
-        # !is.na(ENERGY_PT_MODEL) &
-        # DIQ010 < 3 & # Diabetes (1 = yes; 2 = no)
-        # MCQ160F < 3 & # AVC (1 = yes; 2 = no)
-        # MCQ160B < 3 & # ICC (1 = yes; 2 = no)
-        # MCQ160E < 3 & # IAM (1 = yes; 2 = no)
-        # MCQ220 < 3 & # cancer (1 = yes; 2 = no)
-        # KIQ022 < 3 & # renal (1 = yes; 2 = no)
-        # MCQ160O < 3 & # DPOC (1 = yes; 2 = no)
-        # MCQ160L < 3  # hepatico (1 = yes; 2 = no)
+        !is.na(MULT_COMORB)
+      # PAQ610 < 8 &
+      # PAD615 < 841 &
+      # PAQ625 < 8 &
+      # PAD630 < 841 &
+      # PAQ640 < 8 &
+      # PAD645 < 661 &
+      # PAQ655 < 7 &
+      # PAD660 < 481 &
+      # PAQ670 < 8 &
+      # PAD675 < 540
+      # ENERGY_STATUS == 'LIKELY' & # veriricar se iremos incluir consumo alimentar no projeto
+      # !is.na(ENERGY_PT_MODEL) &
+      # DIQ010 < 3 & # Diabetes (1 = yes; 2 = no)
+      # MCQ160F < 3 & # AVC (1 = yes; 2 = no)
+      # MCQ160B < 3 & # ICC (1 = yes; 2 = no)
+      # MCQ160E < 3 & # IAM (1 = yes; 2 = no)
+      # MCQ220 < 3 & # cancer (1 = yes; 2 = no)
+      # KIQ022 < 3 & # renal (1 = yes; 2 = no)
+      # MCQ160O < 3 & # DPOC (1 = yes; 2 = no)
+      # MCQ160L < 3  # hepatico (1 = yes; 2 = no)
     )
   )
 
@@ -142,13 +623,13 @@ DataExplorer::plot_missing(NHANES$variables)
 # Count inactive vs actives
 knitr::kable(
   NHANES$variables |>
-    count(PA_CLASS)
+    count(INCAPAZ_CLASSE)
   )
 
 # Count hospital admission in active and inactive
 knitr::kable(
   NHANES$variables |>
-    count(PA_CLASS,
+    count(INCAPAZ_CLASSE,
           as.factor(internação_ano))
   )
 
@@ -156,7 +637,7 @@ knitr::kable(
 knitr::kable(
   addmargins(
     table(
-      "PA_CLASS" = NHANES$variables$PA_CLASS,
+      "INCAPAZ_CLASSE" = NHANES$variables$INCAPAZ_CLASSE,
       "internação" = NHANES$variables$internação_ano
     )
   )
@@ -166,7 +647,7 @@ knitr::kable(
 ## crude logistic regression
 crude_svy <-
   survey::svyglm(
-    formula = as.factor(internação_ano) ~ as.factor(PA_CLASS),
+    formula = as.factor(internação_ano) ~ as.factor(INCAPAZ_CLASSE),
     design = NHANES,
     family = binomial(link = "logit")
   )
@@ -185,7 +666,7 @@ sjPlot::tab_model(crude_svy)
 
 adjusted_svy <-
   survey::svyglm(
-    formula = as.factor(internação_ano) ~ as.factor(PA_CLASS) + as.factor(AGE_CLASS) + as.factor(RIDRETH1) + as.factor(POLYPHARM) + as.factor(MULT_COMORB),
+    formula = as.factor(internação_ano) ~ as.factor(INCAPAZ_CLASSE) + as.factor(AGE_CLASS) + as.factor(RIDRETH1) + as.factor(POLYPHARM) + as.factor(MULT_COMORB),
     design = NHANES,
     family = binomial(link = "logit")
   )
@@ -195,36 +676,4 @@ summary(adjusted_svy)
 cbind(odds = exp(adjusted_svy$coefficients), exp(confint(adjusted_svy)))
 sjPlot::tab_model(adjusted_svy)
 
-# Analysis - PA com 3 classes ------------------------------------------------------------------------------------
-## crude logistic regression
-crude_svy <-
-  survey::svyglm(
-    formula = as.factor(internação_ano) ~ as.factor(PA_3_CLASS),
-    design = NHANES,
-    family = binomial(link = "logit")
-  )
-
-# Summary
-summary(crude_svy)
-cbind(odds = exp(crude_svy$coefficients), exp(confint(crude_svy)))
-sjPlot::tab_model(crude_svy)
-
-## Adjusted logistic regression
-### Adjusts:
-# - age [<80 or ≥80 years],
-# - race/ethnicity [Mexican American, other Hispanic, non-Hispanic white, non-Hispanic Black, and others],
-# - POLYPHARMACY [<3 AND >3],
-# - MULTIMORBIDITY [<3 AND >=5]
-
-adjusted_svy <-
-  survey::svyglm(
-    formula = as.factor(internação_ano) ~ as.factor(PA_3_CLASS) + as.factor(AGE_CLASS) + as.factor(RIDRETH1) + as.factor(POLYPHARM) + as.factor(MULT_COMORB),
-    design = NHANES,
-    family = binomial(link = "logit")
-  )
-
-# Summary
-summary(adjusted_svy)
-cbind(odds = exp(adjusted_svy$coefficients), exp(confint(adjusted_svy)))
-sjPlot::tab_model(adjusted_svy)
 
