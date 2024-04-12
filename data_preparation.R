@@ -37,6 +37,7 @@ DEMO_15 <- foreign::read.xport(tf)[, c("SEQN",
                                        "DMDEDUC2",
                                        "DMDMARTL",
                                        "INDFMIN2",
+                                       "INDFMPIR",
                                        "WTINT2YR",
                                        "WTMEC2YR",
                                        "SDMVSTRA",
@@ -52,6 +53,7 @@ DEMO_17 <- foreign::read.xport(tf)[, c("SEQN",
                                        "DMDEDUC2",
                                        "DMDMARTL",
                                        "INDFMIN2",
+                                       "INDFMPIR",
                                        "WTINT2YR",
                                        "WTMEC2YR",
                                        "SDMVSTRA",
@@ -63,7 +65,8 @@ download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2015-2016/HUQ_I.XPT", tf <- temp
 HOSPITAL_15 <- foreign::read.xport(tf)[, c("SEQN",
                                            "HUQ010",
                                            "HUQ071",
-                                           "HUD080")]
+                                           "HUD080",
+                                           "HUQ051")]
 
 
 # 17-18
@@ -71,7 +74,26 @@ download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2017-2018/HUQ_J.XPT", tf <- temp
 HOSPITAL_17 <- foreign::read.xport(tf)[, c("SEQN",
                                            "HUQ010",
                                            "HUQ071",
-                                           "HUD080")]
+                                           "HUD080",
+                                           "HUQ051")]
+
+# Physical function ---------------------------------------------------------------------------
+# 15-16
+download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2015-2016/PFQ_I.XPT", tf <- tempfile(), mode="wb")
+PHYSICAL_FUCTION_15 <- foreign::read.xport(tf)[, c("SEQN",
+                                                   "PFQ061H",
+                                                   "PFQ061I",
+                                                   "PFQ061K",
+                                                   "PFQ061L")]
+
+
+# 17-18
+download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2017-2018/PFQ_J.XPT", tf <- tempfile(), mode="wb")
+PHYSICAL_FUCTION_17 <- foreign::read.xport(tf)[, c("SEQN",
+                                                   "PFQ061H",
+                                                   "PFQ061I",
+                                                   "PFQ061K",
+                                                   "PFQ061L")]
 
 # Physical activity ----------------------------------------------------------------------------
 # 15-16
@@ -376,6 +398,10 @@ BLOODPRESS <- dplyr::bind_rows(BLOODPRESS_15,
 
 BLOODPRESS |> dplyr::distinct(SEQN, .keep_all = TRUE) # testing duplicade rows - "none"
 
+PHYSICAL_FUCTION <- dplyr::bind_rows(PHYSICAL_FUCTION_15,
+                                     PHYSICAL_FUCTION_17)
+
+PHYSICAL_FUCTION |> dplyr::distinct(SEQN, .keep_all = TRUE) # testing duplicade rows - "none"
 
 # Merge HOSPITAL and DEMO files
 
@@ -437,7 +463,12 @@ HOSPITAL_DEMO_PA_CVD_DM_DRUGS_SMOKING_MEDCOND_KIDNEY_DIETD1_DIETD2_BODY <-
 HOSPITAL_DEMO_PA_CVD_DM_DRUGS_SMOKING_MEDCOND_KIDNEY_DIETD1_DIETD2_BODY_BLOODPRESS <-
   dplyr::left_join(HOSPITAL_DEMO_PA_CVD_DM_DRUGS_SMOKING_MEDCOND_KIDNEY_DIETD1_DIETD2_BODY, BLOODPRESS, by="SEQN")
 
-df_bruto <- HOSPITAL_DEMO_PA_CVD_DM_DRUGS_SMOKING_MEDCOND_KIDNEY_DIETD1_DIETD2_BODY_BLOODPRESS
+# Merge HOSPITAL_DEMO_PA_CVD_DM_DRUGS_SMOKING_MEDCOND_KIDNEY_DIETD1_DIETD2_BODY_BLOODPRESS and PHYSICAL FUNCTION
+
+HOSPITAL_DEMO_PA_CVD_DM_DRUGS_SMOKING_MEDCOND_KIDNEY_DIETD1_DIETD2_BODY_BLOODPRESS_PHYSICAL_FUNCTION <-
+  dplyr::left_join(HOSPITAL_DEMO_PA_CVD_DM_DRUGS_SMOKING_MEDCOND_KIDNEY_DIETD1_DIETD2_BODY_BLOODPRESS, PHYSICAL_FUCTION, by="SEQN")
+
+df_bruto <- HOSPITAL_DEMO_PA_CVD_DM_DRUGS_SMOKING_MEDCOND_KIDNEY_DIETD1_DIETD2_BODY_BLOODPRESS_PHYSICAL_FUNCTION
 
 df <- df_bruto |>
   dplyr::distinct(SEQN, .keep_all = TRUE) # removing duplicate rows
@@ -488,6 +519,23 @@ One <-
     PA_CLASS = case_when(PATOTAL >= 150 ~ "ATIVO",
                          PATOTAL < 150 ~ "INATIVO")
   ) |>
+  # adjusting physical functioning (disability) parameters
+  dplyr::mutate(WALKING_ROOMS = PFQ061H) |>
+  dplyr::mutate(STANDINGUP = PFQ061I) |>
+  dplyr::mutate(EATING = PFQ061K) |>
+  dplyr::mutate(DRESSING = PFQ061L) |>
+  # To create the variable INCAPAZ - PRIMARY OUTCOME
+  mutate(WALKING_ROOMS_NOVO = case_when(WALKING_ROOMS == 1 ~ 0,
+                                        WALKING_ROOMS >=2 & WALKING_ROOMS <=4 ~ 1),
+         STANDINGUP_NOVO = case_when(STANDINGUP == 1 ~ 0,
+                                     STANDINGUP >=2 & WALKING_ROOMS <=4 ~ 1),
+         EATING_NOVO = case_when(EATING == 1 ~ 0,
+                                 EATING >=2 & EATING <=4 ~ 1),
+         DRESSING_NOVO = case_when(DRESSING == 1 ~ 0,
+                                   DRESSING >=2 & WALKING_ROOMS <=4 ~ 1),
+         INCAPAZ = WALKING_ROOMS_NOVO + STANDINGUP_NOVO + EATING_NOVO + DRESSING_NOVO,
+         INCAPAZ_CLASSE = case_when(INCAPAZ < 1 ~ 0, # no disability
+                                    INCAPAZ >= 1 & INCAPAZ <= 16 ~ 1)) |>
   # To create the variable INCAPAZ - PRIMARY OUTCOME
   mutate(
     BMXHT = BMXHT /100,
@@ -526,21 +574,21 @@ One <-
     inAnalysis = (
       RIDAGEYR >= 65 &
         internação_ano < 3 &
-        !is.na(PA_CLASS) &
+        !is.na(INCAPAZ_CLASSE) &
         !is.na(AGE_CLASS) &
         !is.na(RIDRETH1) &
         !is.na(POLYPHARM) &
-        !is.na(MULT_COMORB)&
-        PAQ610 < 8 &
-        PAD615 < 841 &
-        PAQ625 < 8 &
-        PAD630 < 841 &
-        PAQ640 < 8 &
-        PAD645 < 661 &
-        PAQ655 < 7 &
-        PAD660 < 481 &
-        PAQ670 < 8 &
-        PAD675 < 540
+        !is.na(MULT_COMORB)
+        # PAQ610 < 8 &
+        # PAD615 < 841 &
+        # PAQ625 < 8 &
+        # PAD630 < 841 &
+        # PAQ640 < 8 &
+        # PAD645 < 661 &
+        # PAQ655 < 7 &
+        # PAD660 < 481 &
+        # PAQ670 < 8 &
+        # PAD675 < 540
         # ENERGY_STATUS == 'LIKELY' & # veriricar se iremos incluir consumo alimentar no projeto
         # !is.na(ENERGY_PT_MODEL) &
         # DIQ010 < 3 & # Diabetes (1 = yes; 2 = no)
