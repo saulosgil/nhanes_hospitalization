@@ -558,6 +558,9 @@ One <-
     # create AGE CLASS
     AGE_CLASS = case_when(RIDAGEYR < 80 ~ "A_<80",
                           RIDAGEYR >= 80 ~ "B_>=80"),
+    # POVERT INDEX
+    POVERT_INDEX = case_when(INDFMPIR > 1 ~ ">1",
+                             INDFMPIR <= 1 ~ "<1"),
     # create mutimorbidity
     SUM_COMORB = DIQ010 + MCQ160F + MCQ160B + MCQ160E + MCQ220 + KIQ022 + MCQ160O + MCQ160L,
     MULT_COMORB = case_when(RXDCOUNT < 2 ~ "A_NAO_MULT_COMORB",
@@ -578,7 +581,8 @@ One <-
         !is.na(AGE_CLASS) &
         !is.na(RIDRETH1) &
         !is.na(POLYPHARM) &
-        !is.na(MULT_COMORB)
+        !is.na(MULT_COMORB) &
+        !is.na(POVERT_INDEX)
       # PAQ610 < 8 &
       # PAD615 < 841 &
       # PAQ625 < 8 &
@@ -643,7 +647,7 @@ knitr::kable(
   )
 )
 
-# Analysis - PA com 2 classes ------------------------------------------------------------------------------------
+# Analysis - DISABILITY VS INTERNACAO ------------------------------------------------------------------------------------
 ## crude logistic regression
 crude_svy <-
   survey::svyglm(
@@ -663,10 +667,11 @@ sjPlot::tab_model(crude_svy)
 # - race/ethnicity [Mexican American, other Hispanic, non-Hispanic white, non-Hispanic Black, and others],
 # - POLYPHARMACY [<3 AND >3],
 # - MULTIMORBIDITY [<3 AND >=5]
+# - POVERT_INDEX [<=1 AND >1]
 
 adjusted_svy <-
   survey::svyglm(
-    formula = as.factor(internação_ano) ~ as.factor(INCAPAZ_CLASSE) + as.factor(AGE_CLASS) + as.factor(RIDRETH1) + as.factor(POLYPHARM) + as.factor(MULT_COMORB),
+    formula = as.factor(internação_ano) ~ as.factor(INCAPAZ_CLASSE) + as.factor(AGE_CLASS) + as.factor(RIDRETH1) + as.factor(POLYPHARM) + as.factor(MULT_COMORB) + as.factor(POVERT_INDEX),
     design = NHANES,
     family = binomial(link = "logit")
   )
