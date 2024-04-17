@@ -573,7 +573,8 @@ One <-
                         PTNKG >=0.8 ~ "B_ADEQUADO"),
     internação_ano = case_when(HUQ071 == 1 ~ 1,
                                HUQ071 == 2 ~ 0),
-    internação_frequencia = HUD080,
+    internação_frequencia = case_when(HUD080 <= 3 ~ "A_<=3",
+                                      HUD080 > 3 ~ "A_>3"),
     inAnalysis = (
       RIDAGEYR >= 65 &
         internação_ano < 3 &
@@ -680,5 +681,39 @@ adjusted_svy <-
 summary(adjusted_svy)
 cbind(odds = exp(adjusted_svy$coefficients), exp(confint(adjusted_svy)))
 sjPlot::tab_model(adjusted_svy)
+
+# DISABILITY AND FREQUENCIA DE INTERNAÇÃO -----------------------------------------------------
+## crude logistic regression
+crude_svy <-
+  survey::svyglm(
+    formula = as.factor(internação_frequencia) ~ as.factor(INCAPAZ_CLASSE),
+    design = NHANES,
+    family = binomial(link = "logit")
+  )
+
+# Summary
+summary(crude_svy)
+cbind(odds = exp(crude_svy$coefficients), exp(confint(crude_svy)))
+sjPlot::tab_model(crude_svy)
+
+## Adjusted logistic regression
+### Adjusts:
+# - age [<80 or ≥80 years],
+# - race/ethnicity [Mexican American, other Hispanic, non-Hispanic white, non-Hispanic Black, and others],
+# - POLYPHARMACY [<3 AND >3],
+# - MULTIMORBIDITY [<3 AND >=5]
+# - POVERT_INDEX [<=1 AND >1]
+adjusted_svy <-
+  survey::svyglm(
+    formula = as.factor(internação_frequencia) ~ as.factor(INCAPAZ_CLASSE) + as.factor(AGE_CLASS) + as.factor(RIDRETH1) + as.factor(POLYPHARM) + as.factor(MULT_COMORB) + as.factor(POVERT_INDEX),
+    design = NHANES,
+    family = binomial(link = "logit")
+  )
+
+# Summary
+summary(adjusted_svy)
+cbind(odds = exp(adjusted_svy$coefficients), exp(confint(adjusted_svy)))
+sjPlot::tab_model(adjusted_svy)
+
 
 
