@@ -564,77 +564,8 @@ df_bruto <- HOSPITAL_DEMO_PHYSICAL_FUCTION_DIABETES_MEDICATIONS_SMOKING_MED_COND
 df <- df_bruto |>
   dplyr::distinct(SEQN, .keep_all = TRUE) # removing duplicate rows
 
-# Salvando data.frame para explorar
+# Salve data.frame to analyse
 # readr::write_csv2(x = df, file = "df.csv") # deixar comentado para salvar
 
-# reading dataset --------------------------------------------------------------------------------
+# Reading dataset --------------------------------------------------------------------------------
 df <- read.csv2(file = "df.csv")
-
-# DataPrep ------------------------------------------------------------------------------------
-One <-
-  df |>
-  # adjusting physical functioning (disability) parameters
-  dplyr::mutate(WALKING_ROOMS = PFQ061H) |>
-  dplyr::mutate(STANDINGUP = PFQ061I) |>
-  dplyr::mutate(EATING = PFQ061K) |>
-  dplyr::mutate(DRESSING = PFQ061L) |>
-  # To create the variable INCAPAZ - PRIMARY OUTCOME
-  mutate(WALKING_ROOMS_NOVO = case_when(WALKING_ROOMS == 1 ~ 0,
-                                        WALKING_ROOMS >=2 & WALKING_ROOMS <=4 ~ 1),
-         STANDINGUP_NOVO = case_when(STANDINGUP == 1 ~ 0,
-                                     STANDINGUP >=2 & WALKING_ROOMS <=4 ~ 1),
-         EATING_NOVO = case_when(EATING == 1 ~ 0,
-                                 EATING >=2 & EATING <=4 ~ 1),
-         DRESSING_NOVO = case_when(DRESSING == 1 ~ 0,
-                                   DRESSING >=2 & WALKING_ROOMS <=4 ~ 1),
-         INCAPAZ = WALKING_ROOMS_NOVO + STANDINGUP_NOVO + EATING_NOVO + DRESSING_NOVO,
-         INCAPAZ_CLASSE = case_when(INCAPAZ < 1 ~ 0, # no disability
-                                    INCAPAZ >= 1 & INCAPAZ <= 16 ~ 1)) |>
-  # To create the variable INCAPAZ - PRIMARY OUTCOME
-  mutate(
-    BMXHT = BMXHT / 100,
-    BMI = BMXWT / (BMXHT^2),
-    OBESITY = case_when(BMI >= 30 ~ "OBESO",
-                        BMI < 30 ~ "NORMAL"),
-    # create AGE CLASS
-    AGE_CLASS = case_when(RIDAGEYR < 80 ~ "A_<80",
-                          RIDAGEYR >= 80 ~ "B_>=80"),
-    # create mutimorbidity
-    SUM_COMORB = DIQ010 + MCQ160F + MCQ160B + MCQ160E + MCQ220 + KIQ022 + MCQ160L,
-    MULT_COMORB = case_when(RXDCOUNT < 2 ~ "A_NAO_MULT_COMORB",
-                            RXDCOUNT >= 2 ~ "B_MULT_COMORB"),
-    # create polypharmacy
-    POLYPHARM = case_when(RXDCOUNT < 3 ~ "A_NO_POLYPHARM",
-                          RXDCOUNT >= 3 ~ "B_POLYPHARM"),
-    internação_ano = case_when(HUQ071 == 1 ~ 1,
-                               HUQ071 == 2 ~ 0),
-    internação_frequencia = HUD080,
-    # weighted
-    WTMEC10YR = WTMEC2YR * 1/5,
-    inAnalysis = (
-      RIDAGEYR >= 65 &
-      internação_ano < 3 &
-      !is.na(INCAPAZ_CLASSE) &
-      !is.na(AGE_CLASS) &
-      !is.na(RIDRETH1) &
-      !is.na(POLYPHARM) &
-      !is.na(MULT_COMORB)
-    )
-  )
-
-#' ## Define survey design
-# Define survey design for overall dataset
-NHANES_all <- svydesign(data=One, id=~SDMVPSU, strata=~SDMVSTRA, weights=~WTMEC10YR, nest=TRUE)
-
-# Create a survey design object for the subset of interest: adults aged 20 and over with a valid depression score
-# Subsetting the original survey design object ensures we keep the design information about the number of clusters and strata
-NHANES <- subset(NHANES_all, inAnalysis)
-
-# to verify number of protein < 0.80
-nrow(NHANES$variables)
-
-# Exploratory analysis ------------------------------------------------------------------------
-# General Descriptive and distribution analysis
-glimpse(NHANES$variables)
-skimr::skim_without_charts(NHANES$variables)
-DataExplorer::plot_missing(NHANES$variables)
