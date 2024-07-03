@@ -448,7 +448,6 @@ DEMO <- dplyr::bind_rows(DEMO_10,
                          DEMO_14,
                          DEMO_16,
                          DEMO_18)
-
 DEMO |> dplyr::distinct(SEQN, .keep_all = TRUE) # testing duplicade rows - "none"
 
 HOSPITAL <- dplyr::bind_rows(HOSPITAL_10,
@@ -525,7 +524,7 @@ BLOOD_PRESSURE |> dplyr::distinct(SEQN, .keep_all = TRUE) # testing duplicade ro
 
 # Merge HOSPITAL and DEMO files
 HOSPITAL_DEMO <-
-  dplyr::left_join(HOSPITAL, DEMO, by="SEQN")
+  dplyr::left_join(DEMO, HOSPITAL, by="SEQN")
 
 # Merge HOSPITAL_DEMO and PHYSICAL_FUCTION
 HOSPITAL_DEMO_PHYSICAL_FUCTION <-
@@ -566,49 +565,14 @@ df <- df_bruto |>
   dplyr::distinct(SEQN, .keep_all = TRUE) # removing duplicate rows
 
 # Salvando data.frame para explorar
-
-# readr::write_csv2(x = df, file = "df.csv") # deixar comentado para salvar
+readr::write_csv2(x = df, file = "df.csv") # deixar comentado para salvar
 
 # reading dataset --------------------------------------------------------------------------------
-
 df <- read.csv2(file = "df.csv")
 
 # DataPrep ------------------------------------------------------------------------------------
 One <-
   df |>
-  # remove duplicates
-  dplyr::distinct(SEQN, .keep_all = TRUE) |>
-  # adjusting physical activity - where is NA to change to zero
-  dplyr::mutate(
-    PAQ610 = tidyr::replace_na(PAQ605, 0),
-    PAQ610 = tidyr::replace_na(PAQ610, 0),
-    PAD615 = tidyr::replace_na(PAD615, 0),
-    PAQ620 = tidyr::replace_na(PAQ620, 0),
-    PAQ625 = tidyr::replace_na(PAQ625, 0),
-    PAD630 = tidyr::replace_na(PAD630, 0),
-    PAD630 = tidyr::replace_na(PAQ635, 0),
-    PAQ640 = tidyr::replace_na(PAQ640, 0),
-    PAD645 = tidyr::replace_na(PAD645, 0),
-    PAD645 = tidyr::replace_na(PAQ650, 0),
-    PAQ655 = tidyr::replace_na(PAQ655, 0),
-    PAD660 = tidyr::replace_na(PAD660, 0),
-    PAD660 = tidyr::replace_na(PAQ665, 0),
-    PAQ670 = tidyr::replace_na(PAQ670, 0),
-    PAD675 = tidyr::replace_na(PAD675, 0),
-    PAD675 = tidyr::replace_na(PAD680, 0)
-  ) |>
-  # created physical activity outcomes
-  dplyr::mutate(
-    # PA work
-    PAW = PAQ610 * PAD615 + PAQ625 * PAD630,
-    # PA transport
-    PAT = PAQ640 * PAD645,
-    # PA leisure
-    PAL = PAQ655 * PAD660 + PAQ670 * PAD675,
-    PATOTAL = PAW + PAT + PAL,
-    PA_CLASS = case_when(PATOTAL >= 150 ~ "ATIVO",
-                         PATOTAL < 150 ~ "INATIVO")
-  ) |>
   # adjusting physical functioning (disability) parameters
   dplyr::mutate(WALKING_ROOMS = PFQ061H) |>
   dplyr::mutate(STANDINGUP = PFQ061I) |>
@@ -628,36 +592,20 @@ One <-
                                     INCAPAZ >= 1 & INCAPAZ <= 16 ~ 1)) |>
   # To create the variable INCAPAZ - PRIMARY OUTCOME
   mutate(
-    BMXHT = BMXHT /100,
+    BMXHT = BMXHT / 100,
     BMI = BMXWT / (BMXHT^2),
     OBESITY = case_when(BMI >= 30 ~ "OBESO",
                         BMI < 30 ~ "NORMAL"),
-    ENERGY = DR1TKCAL,
-    PTN = DR1TPROT,
-    PTNKG = PTN/BMXWT,
-    CHO = DR1TCARB,
-    FAT = DR1TTFAT,
-    ENERGY_KG = ENERGY/BMXWT,
-    ENERGY_PT_MODEL = ENERGY - PTN * 4,
-    ENERGY_STATUS = case_when(RIAGENDR == 1 & ENERGY < 800 ~ "UNLIKELY",
-                              RIAGENDR == 1 & ENERGY > 4000 ~ "UNLIKELY",
-                              RIAGENDR == 1 & ENERGY >= 800 & ENERGY <=4000 ~ "LIKELY",
-                              RIAGENDR == 2 & ENERGY < 500 ~ "UNLIKELY",
-                              RIAGENDR == 2 & ENERGY > 3500 ~ "UNLIKELY",
-                              RIAGENDR == 2 & ENERGY >= 500 & ENERGY <=3500 ~ "LIKELY"),
     # create AGE CLASS
     AGE_CLASS = case_when(RIDAGEYR < 80 ~ "A_<80",
                           RIDAGEYR >= 80 ~ "B_>=80"),
     # create mutimorbidity
-    SUM_COMORB = DIQ010 + MCQ160F + MCQ160B + MCQ160E + MCQ220 + KIQ022 + MCQ160O + MCQ160L,
+    SUM_COMORB = DIQ010 + MCQ160F + MCQ160B + MCQ160E + MCQ220 + KIQ022 + MCQ160L,
     MULT_COMORB = case_when(RXDCOUNT < 2 ~ "A_NAO_MULT_COMORB",
                             RXDCOUNT >= 2 ~ "B_MULT_COMORB"),
     # create polypharmacy
     POLYPHARM = case_when(RXDCOUNT < 3 ~ "A_NO_POLYPHARM",
                           RXDCOUNT >= 3 ~ "B_POLYPHARM"),
-    # create protein consumptoin status RDA
-    PTN_RDA = case_when(PTNKG < 0.8 ~ "A_BAIXO",
-                        PTNKG >=0.8 ~ "B_ADEQUADO"),
     internação_ano = case_when(HUQ071 == 1 ~ 1,
                                HUQ071 == 2 ~ 0),
     internação_frequencia = HUD080,
@@ -669,26 +617,6 @@ One <-
         !is.na(RIDRETH1) &
         !is.na(POLYPHARM) &
         !is.na(MULT_COMORB)
-        # PAQ610 < 8 &
-        # PAD615 < 841 &
-        # PAQ625 < 8 &
-        # PAD630 < 841 &
-        # PAQ640 < 8 &
-        # PAD645 < 661 &
-        # PAQ655 < 7 &
-        # PAD660 < 481 &
-        # PAQ670 < 8 &
-        # PAD675 < 540
-        # ENERGY_STATUS == 'LIKELY' & # veriricar se iremos incluir consumo alimentar no projeto
-        # !is.na(ENERGY_PT_MODEL) &
-        # DIQ010 < 3 & # Diabetes (1 = yes; 2 = no)
-        # MCQ160F < 3 & # AVC (1 = yes; 2 = no)
-        # MCQ160B < 3 & # ICC (1 = yes; 2 = no)
-        # MCQ160E < 3 & # IAM (1 = yes; 2 = no)
-        # MCQ220 < 3 & # cancer (1 = yes; 2 = no)
-        # KIQ022 < 3 & # renal (1 = yes; 2 = no)
-        # MCQ160O < 3 & # DPOC (1 = yes; 2 = no)
-        # MCQ160L < 3  # hepatico (1 = yes; 2 = no)
     )
   )
 
