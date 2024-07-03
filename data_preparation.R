@@ -27,9 +27,9 @@ for (p in c("base", "survey","dplyr")) {
 # Download & Read Transport Files
 
 # Demographic ---------------------------------------------------------------------------------
-# 15-16
-download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2015-2016/DEMO_I.XPT", tf <- tempfile(), mode="wb")
-DEMO_15 <- foreign::read.xport(tf)[, c("SEQN",
+# 09-10
+download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2009-2010/DEMO_F.XPT", tf <- tempfile(), mode="wb")
+DEMO_10 <- foreign::read.xport(tf)[, c("SEQN",
                                        "SDDSRVYR",
                                        "RIAGENDR",
                                        "RIDAGEYR",
@@ -42,10 +42,54 @@ DEMO_15 <- foreign::read.xport(tf)[, c("SEQN",
                                        "WTMEC2YR",
                                        "SDMVSTRA",
                                        "SDMVPSU")]
-
+# 11-12
+download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2011-2012/DEMO_G.XPT", tf <- tempfile(), mode="wb")
+DEMO_12 <- foreign::read.xport(tf)[, c("SEQN",
+                                       "SDDSRVYR",
+                                       "RIAGENDR",
+                                       "RIDAGEYR",
+                                       "RIDRETH1",
+                                       "DMDEDUC2",
+                                       "DMDMARTL",
+                                       "INDFMIN2",
+                                       "INDFMPIR",
+                                       "WTINT2YR",
+                                       "WTMEC2YR",
+                                       "SDMVSTRA",
+                                       "SDMVPSU")]
+# 13-14
+download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2011-2012/DEMO_G.XPT", tf <- tempfile(), mode="wb")
+DEMO_14 <- foreign::read.xport(tf)[, c("SEQN",
+                                       "SDDSRVYR",
+                                       "RIAGENDR",
+                                       "RIDAGEYR",
+                                       "RIDRETH1",
+                                       "DMDEDUC2",
+                                       "DMDMARTL",
+                                       "INDFMIN2",
+                                       "INDFMPIR",
+                                       "WTINT2YR",
+                                       "WTMEC2YR",
+                                       "SDMVSTRA",
+                                       "SDMVPSU")]
+# 15-16
+download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2015-2016/DEMO_I.XPT", tf <- tempfile(), mode="wb")
+DEMO_16 <- foreign::read.xport(tf)[, c("SEQN",
+                                       "SDDSRVYR",
+                                       "RIAGENDR",
+                                       "RIDAGEYR",
+                                       "RIDRETH1",
+                                       "DMDEDUC2",
+                                       "DMDMARTL",
+                                       "INDFMIN2",
+                                       "INDFMPIR",
+                                       "WTINT2YR",
+                                       "WTMEC2YR",
+                                       "SDMVSTRA",
+                                       "SDMVPSU")]
 # 17-18
 download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2017-2018/DEMO_J.XPT", tf <- tempfile(), mode="wb")
-DEMO_17 <- foreign::read.xport(tf)[, c("SEQN",
+DEMO_18 <- foreign::read.xport(tf)[, c("SEQN",
                                        "SDDSRVYR",
                                        "RIAGENDR",
                                        "RIDAGEYR",
@@ -60,276 +104,85 @@ DEMO_17 <- foreign::read.xport(tf)[, c("SEQN",
                                        "SDMVPSU")]
 
 # Hospital Utilization and access to care-------------------------------------------------------
+# 09-10
+download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2009-2010/HUQ_F.XPT", tf <- tempfile(), mode="wb")
+HOSPITAL_10 <- foreign::read.xport(tf)[, c("SEQN",
+                                           "HUQ010",
+                                           "HUQ071",
+                                           "HUD080")]
+# 11-12
+download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2011-2012/HUQ_G.XPT", tf <- tempfile(), mode="wb")
+HOSPITAL_12 <- foreign::read.xport(tf)[, c("SEQN",
+                                           "HUQ010",
+                                           "HUQ071",
+                                           "HUD080")]
+# 13-14
+download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2013-2014/HUQ_H.XPT", tf <- tempfile(), mode="wb")
+HOSPITAL_14 <- foreign::read.xport(tf)[, c("SEQN",
+                                           "HUQ010",
+                                           "HUQ071",
+                                           "HUD080")]
 # 15-16
 download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2015-2016/HUQ_I.XPT", tf <- tempfile(), mode="wb")
-HOSPITAL_15 <- foreign::read.xport(tf)[, c("SEQN",
+HOSPITAL_16 <- foreign::read.xport(tf)[, c("SEQN",
                                            "HUQ010",
                                            "HUQ071",
-                                           "HUD080",
-                                           "HUQ051")]
-
-
+                                           "HUD080")]
 # 17-18
 download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2017-2018/HUQ_J.XPT", tf <- tempfile(), mode="wb")
-HOSPITAL_17 <- foreign::read.xport(tf)[, c("SEQN",
+HOSPITAL_18 <- foreign::read.xport(tf)[, c("SEQN",
                                            "HUQ010",
                                            "HUQ071",
-                                           "HUD080",
-                                           "HUQ051")]
+                                           "HUD080")]
 
 # Physical function ---------------------------------------------------------------------------
+# 09-10
+download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2009-2010/PFQ_F.XPT", tf <- tempfile(), mode="wb")
+PHYSICAL_FUCTION_10 <- foreign::read.xport(tf)[, c("SEQN",
+                                                   "PFQ061H",
+                                                   "PFQ061I",
+                                                   "PFQ061K",
+                                                   "PFQ061L")]# 15-16
+# 11-12
+download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2011-2012/PFQ_G.XPT", tf <- tempfile(), mode="wb")
+PHYSICAL_FUCTION_12 <- foreign::read.xport(tf)[, c("SEQN",
+                                                   "PFQ061H",
+                                                   "PFQ061I",
+                                                   "PFQ061K",
+                                                   "PFQ061L")]
+# 13-14
+download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2013-2014/PFQ_H.XPT", tf <- tempfile(), mode="wb")
+PHYSICAL_FUCTION_14 <- foreign::read.xport(tf)[, c("SEQN",
+                                                   "PFQ061H",
+                                                   "PFQ061I",
+                                                   "PFQ061K",
+                                                   "PFQ061L")]
 # 15-16
 download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2015-2016/PFQ_I.XPT", tf <- tempfile(), mode="wb")
-PHYSICAL_FUCTION_15 <- foreign::read.xport(tf)[, c("SEQN",
+PHYSICAL_FUCTION_16 <- foreign::read.xport(tf)[, c("SEQN",
                                                    "PFQ061H",
                                                    "PFQ061I",
                                                    "PFQ061K",
                                                    "PFQ061L")]
-
-
 # 17-18
 download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2017-2018/PFQ_J.XPT", tf <- tempfile(), mode="wb")
-PHYSICAL_FUCTION_17 <- foreign::read.xport(tf)[, c("SEQN",
+PHYSICAL_FUCTION_18 <- foreign::read.xport(tf)[, c("SEQN",
                                                    "PFQ061H",
                                                    "PFQ061I",
                                                    "PFQ061K",
                                                    "PFQ061L")]
 
-# Physical activity ----------------------------------------------------------------------------
-# 15-16
-download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2015-2016/PAQ_I.XPT", tf <- tempfile(), mode="wb")
-PA_15 <- foreign::read.xport(tf)[, c("SEQN",
-                                     "PAQ605",
-                                     "PAQ610",
-                                     "PAD615",
-                                     "PAQ620",
-                                     "PAQ625",
-                                     "PAD630",
-                                     "PAQ635",
-                                     "PAQ640",
-                                     "PAD645",
-                                     "PAQ650",
-                                     "PAQ655",
-                                     "PAD660",
-                                     "PAQ665",
-                                     "PAQ670",
-                                     "PAD675",
-                                     "PAD680")]
-
-# 17-18
-download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2017-2018/PAQ_J.XPT", tf <- tempfile(), mode="wb")
-PA_17 <- foreign::read.xport(tf)[, c("SEQN",
-                                     "PAQ605",
-                                     "PAQ610",
-                                     "PAD615",
-                                     "PAQ620",
-                                     "PAQ625",
-                                     "PAD630",
-                                     "PAQ635",
-                                     "PAQ640",
-                                     "PAD645",
-                                     "PAQ650",
-                                     "PAQ655",
-                                     "PAD660",
-                                     "PAQ665",
-                                     "PAQ670",
-                                     "PAD675",
-                                     "PAD680")]
-
-# cardiovascular health -------------------------------------------------------------------------
-# 15-16
-download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2015-2016/CDQ_I.XPT", tf <- tempfile(), mode="wb")
-CVD_15 <- foreign::read.xport(tf)[, c("SEQN",
-                                      "CDQ010",
-                                      "CDQ001")]
-
-# 17-18
-download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2017-2018/CDQ_J.XPT", tf <- tempfile(), mode="wb")
-CVD_17 <- foreign::read.xport(tf)[, c("SEQN",
-                                      "CDQ010",
-                                      "CDQ001")]
-
-# Diabetes -------------------------------------------------------------------------
-# 15-16
-download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2015-2016/DIQ_I.XPT", tf <- tempfile(), mode="wb")
-DM_15 <- foreign::read.xport(tf)[, c("SEQN",
-                                     "DIQ010",
-                                     "DIQ050")]
-
-# 17-18
-download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2017-2018/DIQ_J.XPT", tf <- tempfile(), mode="wb")
-DM_17 <- foreign::read.xport(tf)[, c("SEQN",
-                                     "DIQ010",
-                                     "DIQ050")]
-
-# Prescription Medications --------------------------------------------------------------------
-# 15-16
-download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2015-2016/RXQ_RX_I.XPT", tf <- tempfile(), mode="wb")
-DRUGS_15 <- foreign::read.xport(tf)[, c("SEQN",
-                                        "RXDUSE",
-                                        "RXDCOUNT")]
-
-# 17-18
-download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2017-2018/RXQ_RX_J.XPT", tf <- tempfile(), mode="wb")
-DRUGS_17 <- foreign::read.xport(tf)[, c("SEQN",
-                                        "RXDUSE",
-                                        "RXDCOUNT")]
-
-# Smoking - Cigarret use ---------------------------------------------------------------------
-# 15-16
-download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2015-2016/SMQ_I.XPT", tf <- tempfile(), mode="wb")
-SMOKING_15 <- foreign::read.xport(tf)[, c("SEQN",
-                                          "SMQ020",
-                                          "SMD030",
-                                          "SMQ040",
-                                          "SMQ050Q",
-                                          "SMD641",
-                                          "SMD650")]
-
-# 17-18
-download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2017-2018/SMQ_J.XPT", tf <- tempfile(), mode="wb")
-SMOKING_17 <- foreign::read.xport(tf)[, c("SEQN",
-                                          "SMQ020",
-                                          "SMD030",
-                                          "SMQ040",
-                                          "SMQ050Q",
-                                          "SMD641",
-                                          "SMD650")]
-
-# Medical Conditions -------------------------------------------------------------------------
-# 15-16
-download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2015-2016/MCQ_I.XPT", tf <- tempfile(), mode="wb")
-MEDCOND_15 <- foreign::read.xport(tf)[, c("SEQN",
-                                          "MCQ160B",
-                                          "MCQ160C",
-                                          "MCQ160D",
-                                          "MCQ160E",
-                                          "MCQ160F",
-                                          "MCQ160O",
-                                          "MCQ080",
-                                          "MCQ160L",
-                                          "MCQ220")]
-
-# 17-18
-download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2017-2018/MCQ_J.XPT", tf <- tempfile(), mode="wb")
-MEDCOND_17 <- foreign::read.xport(tf)[, c("SEQN",
-                                          "MCQ160B",
-                                          "MCQ160C",
-                                          "MCQ160D",
-                                          "MCQ160E",
-                                          "MCQ160F",
-                                          "MCQ160O",
-                                          "MCQ080",
-                                          "MCQ160L",
-                                          "MCQ220")]
-# Kidney Conditions  -------------------------------------------------------------------------
-# 15-16
-download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2015-2016/KIQ_U_I.XPT", tf <- tempfile(), mode="wb")
-KIDNEY_15 <- foreign::read.xport(tf)[, c("SEQN",
-                                         "KIQ022")]
-
-# 17-18
-download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2017-2018/KIQ_U_J.XPT", tf <- tempfile(), mode="wb")
-KIDNEY_17 <- foreign::read.xport(tf)[, c("SEQN",
-                                         "KIQ022")]
 
 
-# Dietary Interview Day1 -------------------------------------------------------------------------
-# 15-16
-download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2015-2016/DR1TOT_I.XPT", tf <- tempfile(), mode="wb")
-DIETD1_15 <- foreign::read.xport(tf)[, c("SEQN",
-                                         "WTDRD1",
-                                         "DR1TKCAL",
-                                         "DR1TPROT",
-                                         "DR1TCARB",
-                                         "DR1TSUGR",
-                                         "DR1TFIBE",
-                                         "DR1TTFAT",
-                                         "DR1TSFAT",
-                                         "DR1TMFAT",
-                                         "DR1TPFAT",
-                                         "DR1TCHOL")]
-
-# 17-18
-download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2017-2018/DR1TOT_J.XPT", tf <- tempfile(), mode="wb")
-DIETD1_17 <- foreign::read.xport(tf)[, c("SEQN",
-                                         "WTDRD1",
-                                         "DR1TKCAL",
-                                         "DR1TPROT",
-                                         "DR1TCARB",
-                                         "DR1TSUGR",
-                                         "DR1TFIBE",
-                                         "DR1TTFAT",
-                                         "DR1TSFAT",
-                                         "DR1TMFAT",
-                                         "DR1TPFAT",
-                                         "DR1TCHOL")]
 
 
-# Dietary Interview Day2 -------------------------------------------------------------------------
-# 15-16
-download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2015-2016/DR2TOT_I.XPT", tf <- tempfile(), mode="wb")
-DIETD2_15 <- foreign::read.xport(tf)[, c("SEQN",
-                                         "WTDR2D",
-                                         "DR2TKCAL",
-                                         "DR2TPROT",
-                                         "DR2TCARB",
-                                         "DR2TSUGR",
-                                         "DR2TFIBE",
-                                         "DR2TTFAT",
-                                         "DR2TSFAT",
-                                         "DR2TMFAT",
-                                         "DR2TPFAT",
-                                         "DR2TCHOL")]
 
-# 17-18
-download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2017-2018/DR2TOT_J.XPT", tf <- tempfile(), mode="wb")
-DIETD2_17 <- foreign::read.xport(tf)[, c("SEQN",
-                                         "WTDR2D",
-                                         "DR2TKCAL",
-                                         "DR2TPROT",
-                                         "DR2TCARB",
-                                         "DR2TSUGR",
-                                         "DR2TFIBE",
-                                         "DR2TTFAT",
-                                         "DR2TSFAT",
-                                         "DR2TMFAT",
-                                         "DR2TPFAT",
-                                         "DR2TCHOL")]
 
-# Body measurements -------------------------------------------------------------------------
-# 15-16
-download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2015-2016/BMX_I.XPT", tf <- tempfile(), mode="wb")
-BODY_15 <- foreign::read.xport(tf)[, c("SEQN",
-                                       "BMXWT",
-                                       "BMXHT")]
 
-# 17-18
-download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2017-2018/BMX_J.XPT", tf <- tempfile(), mode="wb")
-BODY_17 <- foreign::read.xport(tf)[, c("SEQN",
-                                       "BMXWT",
-                                       "BMXHT")]
 
-# Blood Pressure  -------------------------------------------------------------------------
-# 15-16
-download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2015-2016/BPX_I.XPT", tf <- tempfile(), mode="wb")
-BLOODPRESS_15 <- foreign::read.xport(tf)[, c("SEQN",
-                                             "BPXSY1",
-                                             "BPXDI1",
-                                             "BPXSY2",
-                                             "BPXDI2",
-                                             "BPXSY3",
-                                             "BPXDI3")]
 
-# 17-18
-download.file("https://wwwn.cdc.gov/Nchs/Nhanes/2017-2018/BPX_J.XPT", tf <- tempfile(), mode="wb")
-BLOODPRESS_17 <- foreign::read.xport(tf)[, c("SEQN",
-                                             "BPXSY1",
-                                             "BPXDI1",
-                                             "BPXSY2",
-                                             "BPXDI2",
-                                             "BPXSY3",
-                                             "BPXDI3")]
+
+
 
 # Append Files ---------------------------------------------------------------------------------
 # Append Files
