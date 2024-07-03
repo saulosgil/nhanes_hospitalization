@@ -565,7 +565,7 @@ df <- df_bruto |>
   dplyr::distinct(SEQN, .keep_all = TRUE) # removing duplicate rows
 
 # Salvando data.frame para explorar
-readr::write_csv2(x = df, file = "df.csv") # deixar comentado para salvar
+# readr::write_csv2(x = df, file = "df.csv") # deixar comentado para salvar
 
 # reading dataset --------------------------------------------------------------------------------
 df <- read.csv2(file = "df.csv")
@@ -609,20 +609,22 @@ One <-
     internação_ano = case_when(HUQ071 == 1 ~ 1,
                                HUQ071 == 2 ~ 0),
     internação_frequencia = HUD080,
+    # weighted
+    WTMEC10YR = WTMEC2YR * 1/5,
     inAnalysis = (
       RIDAGEYR >= 65 &
-        internação_ano < 3 &
-        !is.na(INCAPAZ_CLASSE) &
-        !is.na(AGE_CLASS) &
-        !is.na(RIDRETH1) &
-        !is.na(POLYPHARM) &
-        !is.na(MULT_COMORB)
+      internação_ano < 3 &
+      !is.na(INCAPAZ_CLASSE) &
+      !is.na(AGE_CLASS) &
+      !is.na(RIDRETH1) &
+      !is.na(POLYPHARM) &
+      !is.na(MULT_COMORB)
     )
   )
 
 #' ## Define survey design
 # Define survey design for overall dataset
-NHANES_all <- svydesign(data=One, id=~SDMVPSU, strata=~SDMVSTRA, weights=~WTMEC2YR, nest=TRUE)
+NHANES_all <- svydesign(data=One, id=~SDMVPSU, strata=~SDMVSTRA, weights=~WTMEC10YR, nest=TRUE)
 
 # Create a survey design object for the subset of interest: adults aged 20 and over with a valid depression score
 # Subsetting the original survey design object ensures we keep the design information about the number of clusters and strata
