@@ -1,7 +1,7 @@
 
 # 🏩🛌 Association between Physical Disability and Hospitalization in Older Adults (Research-FMUSP)
 
-## 📒 Descripstion
+## 📒 Description
 - This repository consists of scripts related to downloaded datasets from the National Health and Nutrition Examination Survey (NHANES) and analysis to test whether physical disability is associated with hospitalization in older adults.
 
 ## 🤖 Technologies Used
