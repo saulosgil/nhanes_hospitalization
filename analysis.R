@@ -41,9 +41,9 @@ One <-
          STANDINGUP_NOVO = case_when(STANDINGUP == 1 ~ 0,
                                      STANDINGUP >=2 & WALKING_ROOMS <=4 ~ 1),
          EATING_NOVO = case_when(EATING == 1 ~ 0,
-                                 EATING >=2 & EATING <=4 ~ 1),
+                                 EATING >= 2 & EATING <=4 ~ 1),
          DRESSING_NOVO = case_when(DRESSING == 1 ~ 0,
-                                   DRESSING >=2 & WALKING_ROOMS <=4 ~ 1),
+                                   DRESSING >= 2 & WALKING_ROOMS <=4 ~ 1),
          INCAPAZ = WALKING_ROOMS_NOVO + STANDINGUP_NOVO + EATING_NOVO + DRESSING_NOVO,
          INCAPAZ_CLASSE = case_when(INCAPAZ < 1 ~ 0, # no disability
                                     INCAPAZ >= 1 & INCAPAZ <= 16 ~ 1)) |>
