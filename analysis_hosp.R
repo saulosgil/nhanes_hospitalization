@@ -79,6 +79,7 @@ One <-
       !is.na(AGE_CLASS) &
       !is.na(RIDRETH1) &
       !is.na(POLYPHARM) &
+      !is.na(POVERT_INDEX) &
       !is.na(MULT_COMORB)
     )
   )
