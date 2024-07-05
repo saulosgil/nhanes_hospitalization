@@ -111,7 +111,7 @@ knitr::kable(
 knitr::kable(
   NHANES$variables |>
     count(INCAPAZ_CLASSE,
-          as.factor(internação_ano))
+          as.factor(internação_frequencia))
   )
 
 # Creating two-way table from data frame
@@ -119,16 +119,17 @@ knitr::kable(
   addmargins(
     table(
       "INCAPAZ_CLASSE" = NHANES$variables$INCAPAZ_CLASSE,
-      "internação" = NHANES$variables$internação_ano
+      "internação" = NHANES$variables$internação_frequencia
     )
   )
 )
 
-# Analysis - DISABILITY VS INTERNACAO ------------------------------------------------------------------------------------
+# DISABILITY AND FREQUENCIA DE INTERNAÇÃO -----------------------------------------------------
+# <= 3 ou > 3 -----------------------------------------------------
 ## crude logistic regression
 crude_svy <-
   survey::svyglm(
-    formula = as.factor(internação_ano) ~ as.factor(INCAPAZ_CLASSE),
+    formula = as.factor(internação_frequencia) ~ as.factor(INCAPAZ_CLASSE),
     design = NHANES,
     family = binomial(link = "logit")
   )
@@ -145,10 +146,9 @@ sjPlot::tab_model(crude_svy)
 # - POLYPHARMACY [<3 AND >3],
 # - MULTIMORBIDITY [<3 AND >=5]
 # - POVERT_INDEX [<=1 AND >1]
-
 adjusted_svy <-
   survey::svyglm(
-    formula = as.factor(internação_ano) ~ as.factor(INCAPAZ_CLASSE) + as.factor(AGE_CLASS) + as.factor(RIDRETH1) + as.factor(POLYPHARM) + as.factor(MULT_COMORB) + as.factor(POVERT_INDEX),
+    formula = as.factor(internação_frequencia) ~ as.factor(INCAPAZ_CLASSE) + as.factor(AGE_CLASS) + as.factor(RIDRETH1) + as.factor(POLYPHARM) + as.factor(MULT_COMORB) + as.factor(POVERT_INDEX),
     design = NHANES,
     family = binomial(link = "logit")
   )
